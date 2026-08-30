@@ -93,7 +93,7 @@ Application Support/
     poster/<sha256-prefix>/<sha256>.heic   first-frame still at tile resolution
 ```
 
-- Content-addressed by SHA-256 of the **transcoded output**, which gives free dedupe when a user imports the same clip twice.
+- Content-addressed by SHA-256 of the **transcoded output**. This dedupes identical bytes, which is what makes storing the same file twice free. It does **not** reliably dedupe a re-import of the same moment: the encoder is not byte-deterministic. Measured, six repeated extractions of one source produced six mostly-distinct digests, two colliding by chance. Making re-import free needs source-keyed dedupe, a fingerprint of the source plus the trim window, which is not built.
 - `Application Support`, not `Documents`: the user should not see raw derivative files in the Files app.
 - `NSFileProtectionComplete` on every blob (`DG-SEC-01`, and C3 voice content requires encryption at rest).
 - `isExcludedFromBackup = true` in v1. iCloud backup of C3 voice content is a vendor question that is not answered yet (Flag in 8.2).

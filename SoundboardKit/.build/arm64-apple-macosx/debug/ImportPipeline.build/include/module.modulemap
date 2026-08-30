@@ -1,3 +1,0 @@
-module ImportPipeline {
-    header "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/ImportPipeline.build/include/ImportPipeline-Swift.h"
-}

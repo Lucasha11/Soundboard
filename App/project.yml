@@ -1,0 +1,43 @@
+# XcodeGen spec. Generate the project with:
+#
+#   brew install xcodegen
+#   cd App && xcodegen generate && open Soundboard.xcodeproj
+#
+# A spec rather than a checked-in .xcodeproj on purpose: a hand-written
+# project.pbxproj could not be validated on the machine this was authored on,
+# and an unopenable project file is worse than none.
+name: Soundboard
+options:
+  bundleIdPrefix: com.soundboard
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+packages:
+  SoundboardKit:
+    path: ../SoundboardKit
+
+targets:
+  Soundboard:
+    type: application
+    platform: iOS
+    sources:
+      - path: .
+        excludes:
+          - project.yml
+          - README.md
+    info:
+      path: Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.soundboard.app
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"   # iPhone only, as the design specifies
+        ENABLE_USER_SCRIPT_SANDBOXING: YES
+    dependencies:
+      - package: SoundboardKit
+        product: SoundboardUI
+      - package: SoundboardKit
+        product: SoundLibrary
