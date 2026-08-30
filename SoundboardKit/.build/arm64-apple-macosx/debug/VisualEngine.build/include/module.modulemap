@@ -1,0 +1,3 @@
+module VisualEngine {
+    header "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/include/VisualEngine-Swift.h"
+}

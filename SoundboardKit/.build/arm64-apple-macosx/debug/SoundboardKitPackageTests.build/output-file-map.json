@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/SoundboardKitPackageTests.build/master.swiftdeps"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/SoundboardKitPackageTests.derived/runner.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/SoundboardKitPackageTests.build/runner.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/SoundboardKitPackageTests.build/runner.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/SoundboardKitPackageTests.build/runner~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/SoundboardKitPackageTests.build/runner.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/SoundboardKitPackageTests.build/runner.dia"
+  }
+}

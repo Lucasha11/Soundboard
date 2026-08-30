@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/MediaStore.build/master.swiftdeps"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/MediaStore/BlobStore.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/MediaStore.build/BlobStore.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/MediaStore.build/BlobStore.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/MediaStore.build/BlobStore~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/MediaStore.build/BlobStore.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/MediaStore.build/BlobStore.dia"
+  }
+}

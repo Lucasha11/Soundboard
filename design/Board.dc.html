@@ -1,0 +1,332 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; width: 1280px; height: 900px; background: #101216; color: #e8eaed;
+      font-family: Archivo, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #c8ff2e; } a:hover { color: #dcff7a; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+    .top { display: flex; align-items: center; gap: 20px; height: 64px; padding: 0 24px;
+      border-bottom: 1px solid #262a31; }
+    .brand { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+    .brand em { font-style: normal; color: #c8ff2e; }
+    .search { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 12px;
+      background: #181b21; border: 1px solid #262a31; border-radius: 3px; color: #6f757e;
+      font-size: 13px; width: 300px; }
+    .upl { margin-left: auto; display: flex; align-items: center; gap: 7px;
+      padding: 7px 12px; border: 1px solid #2f353d; border-radius: 3px;
+      font-size: 12px; font-weight: 600; color: #b6bcc4; }
+    .avatar { width: 26px; height: 26px; border-radius: 3px; background: #6d5bd0; }
+    .shell { display: grid; grid-template-columns: 196px minmax(0, 1fr); height: 836px; }
+    .rail { border-right: 1px solid #262a31; padding: 18px 0; }
+    .rlbl { padding: 0 20px 9px; font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      color: #5c6169; }
+    .ritem { display: flex; align-items: center; gap: 9px; padding: 8px 20px;
+      font-size: 13px; color: #8b9099; }
+    .ritem.on { color: #101216; background: #c8ff2e; font-weight: 600; }
+    .ritem b { margin-left: auto; font-size: 11px; font-weight: 500; opacity: 0.7; }
+    .rgap { height: 20px; }
+    .main { display: flex; flex-direction: column; min-width: 0; }
+    .mhead { display: flex; align-items: baseline; gap: 12px; padding: 20px 24px 14px; }
+    .mhead h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+    .mhead span { font-size: 12px; color: #6f757e; }
+    .mhead .hint { margin-left: auto; font-size: 11px; color: #5c6169; }
+    .grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px;
+      padding: 0 24px; }
+    .pad { position: relative; aspect-ratio: 1 / 1; padding: 0; border: 1px solid #262a31;
+      border-radius: 5px; overflow: hidden; background: #181b21; cursor: pointer;
+      text-align: left; font-family: inherit; color: inherit; display: block;
+      transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease; }
+    .pad svg.ph { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .pad::after { content: ""; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(9,10,13,0.9) 0%, rgba(9,10,13,0.3) 42%, rgba(9,10,13,0.05) 70%);
+      transition: background 120ms ease; }
+    .pad:hover { transform: translateY(-3px); border-color: #3d444e; }
+    .pad:hover::after { background: linear-gradient(to top, rgba(9,10,13,0.92) 0%, rgba(9,10,13,0.5) 55%, rgba(9,10,13,0.3) 100%); }
+    .pad:focus-visible { outline: 2px solid #c8ff2e; outline-offset: 2px; }
+    .glyph { position: absolute; left: 50%; top: 46%; z-index: 3; width: 46px; height: 46px;
+      margin: -23px 0 0 -23px; border-radius: 50%; background: #c8ff2e; color: #101216;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.82); transition: opacity 120ms ease, transform 120ms ease; }
+    .pad:hover .glyph { opacity: 1; transform: scale(1); }
+    .lab { position: absolute; left: 10px; right: 10px; bottom: 9px; z-index: 3; }
+    .nm { display: block; font-size: 11px; letter-spacing: -0.005em;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .who { display: block; margin-top: 2px; font-size: 10px; color: #9aa0a8; }
+    .tagl { position: absolute; top: 8px; right: 8px; z-index: 3; display: flex;
+      align-items: center; gap: 4px; padding: 3px 6px; border-radius: 3px;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.08em; }
+    .tagl.pro { background: rgba(16,18,22,0.8); color: #c8ff2e; border: 1px solid #c8ff2e; }
+    .dur { position: absolute; top: 8px; left: 8px; z-index: 3; padding: 2px 5px;
+      border-radius: 3px; background: rgba(16,18,22,0.72); font-size: 9px; color: #b6bcc4; }
+    .pad.locked svg.ph { filter: grayscale(1); opacity: 0.4; }
+    .pad.locked .glyph { background: #2f353d; color: #b6bcc4; }
+    .pad.on { border-color: #c8ff2e; box-shadow: 0 0 0 1px #c8ff2e, 0 8px 22px -12px rgba(200,255,46,0.6); transform: translateY(-3px); }
+    .pad.on .glyph { opacity: 1; transform: scale(1); }
+    .ring { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; height: 3px;
+      background: #c8ff2e; transform-origin: left center; animation: sweep 420ms linear forwards; }
+    @keyframes sweep { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .nudge { position: absolute; inset: auto 8px 8px; z-index: 5; padding: 7px 9px;
+      background: #101216; border: 1px solid #c8ff2e; border-radius: 4px;
+      font-size: 10.5px; line-height: 1.35; color: #e8eaed; }
+    .nudge b { color: #c8ff2e; }
+    .bar { margin-top: auto; display: flex; align-items: center; gap: 14px;
+      height: 64px; padding: 0 24px; border-top: 1px solid #262a31; background: #14161b; }
+    .np { display: flex; align-items: center; gap: 10px; min-width: 232px; }
+    .npimg { width: 34px; height: 34px; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+    .npimg svg { width: 100%; height: 100%; display: block; }
+    .npt { font-size: 11.5px; }
+    .npt span { display: block; margin-top: 2px; font-size: 10px; color: #6f757e; }
+    .wave2 { flex-grow: 1; display: flex; align-items: center; gap: 2px; height: 26px; }
+    .wave2 i { display: block; width: 3px; background: #2f353d; border-radius: 1px; }
+    .wave2 i.lit { background: #c8ff2e; }
+    .vol { display: flex; align-items: center; gap: 8px; font-size: 10px; color: #6f757e; }
+    .volbar { width: 74px; height: 3px; border-radius: 2px; background: #2f353d; position: relative; }
+    .volbar i { position: absolute; left: 0; top: 0; bottom: 0; width: 62%; background: #8b9099;
+      border-radius: 2px; display: block; }
+  </style>
+</helmet>
+<div>
+  <div class="top">
+    <div class="brand">SOUND<em>BOARD</em></div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+      <span>Search 248 sounds</span>
+    </div>
+    <div class="upl">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V5"></path><path d="M7 10l5-5 5 5"></path><path d="M4 19h16"></path></svg>
+      Upload a sound
+    </div>
+    <div class="avatar"></div>
+  </div>
+
+  <div class="shell">
+    <div class="rail">
+      <div class="rlbl">BROWSE</div>
+      <div class="ritem on">Reactions <b>15</b></div>
+      <div class="ritem">Hype <b>34</b></div>
+      <div class="ritem">Fails <b>28</b></div>
+      <div class="ritem">Chat <b>41</b></div>
+      <div class="ritem">Stings <b>19</b></div>
+      <div class="rgap"></div>
+      <div class="rlbl">YOURS</div>
+      <div class="ritem">Saved <b>12</b></div>
+      <div class="ritem">Stream board <b>8</b></div>
+      <div class="ritem">Discord board <b>16</b></div>
+    </div>
+
+    <div class="main">
+      <div class="mhead">
+        <h2>Reactions</h2>
+        <span>15 sounds &middot; 6 creators</span>
+        <span class="hint">Hover a pad, click to fire it</span>
+      </div>
+
+      <div class="grid">
+        <button class="pad {{c0}}" onClick="{{p0}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#6d5bd0"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:02</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">kekw-laugh.mp3</span><span class="who">@vexlord</span></span>
+        </button>
+
+        <button class="pad locked {{c1}}" onClick="{{p1}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#d1495b"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:03</span>
+          <span class="tagl pro">PRO</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+          <span class="lab"><span class="nm mono">clutch-scream.wav</span><span class="who">@nova_k</span></span>
+        </button>
+
+        <button class="pad {{c2}}" onClick="{{p2}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#2f6f5e"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:01</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">bruh-moment.mp3</span><span class="who">@grimjaw</span></span>
+        </button>
+
+        <button class="pad {{c3}}" onClick="{{p3}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#c9772a"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:02</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">gg-go-next.mp3</span><span class="who">@halcyon</span></span>
+        </button>
+
+        <button class="pad locked {{c4}}" onClick="{{p4}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#3aa8a0"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:04</span>
+          <span class="tagl pro">PRO</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+          <span class="lab"><span class="nm mono">airhorn-hype.wav</span><span class="who">@minttea</span></span>
+        </button>
+
+        <button class="pad {{c5}}" onClick="{{p5}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#9b6a2f"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:01</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">rat-noise.wav</span><span class="who">@bricktop</span></span>
+        </button>
+
+        <button class="pad {{c6}}" onClick="{{p6}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#34495e"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:02</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">sheesh.mp3</span><span class="who">@nyx</span></span>
+        </button>
+
+        <button class="pad locked {{c7}}" onClick="{{p7}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#7a4b8f"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:03</span>
+          <span class="tagl pro">PRO</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+          <span class="lab"><span class="nm mono">copium-sigh.mp3</span><span class="who">@pixelpriest</span></span>
+        </button>
+
+        <button class="pad {{c8}}" onClick="{{p8}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#5a4bb5"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:02</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">wow-nice.mp3</span><span class="who">@vexlord</span></span>
+        </button>
+
+        <button class="pad {{c9}}" onClick="{{p9}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#b0453f"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:01</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">hell-yeah.mp3</span><span class="who">@nova_k</span></span>
+        </button>
+
+        <button class="pad locked {{c10}}" onClick="{{p10}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#256054"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:02</span>
+          <span class="tagl pro">PRO</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+          <span class="lab"><span class="nm mono">ded-chat.mp3</span><span class="who">@grimjaw</span></span>
+        </button>
+
+        <button class="pad {{c11}}" onClick="{{p11}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#d18a3a"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:01</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">boing.wav</span><span class="who">@halcyon</span></span>
+        </button>
+
+        <button class="pad {{c12}}" onClick="{{p12}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#7d6ce0"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:02</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">no-way.wav</span><span class="who">@bricktop</span></span>
+        </button>
+
+        <button class="pad locked {{c13}}" onClick="{{p13}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#2f8f88"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:05</span>
+          <span class="tagl pro">PRO</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+          <span class="lab"><span class="nm mono">sad-violin.wav</span><span class="who">@minttea</span></span>
+        </button>
+
+        <button class="pad {{c14}}" onClick="{{p14}}">
+          <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#455f7a"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg>
+          <span class="dur mono">0:02</span>
+          <span class="glyph"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span>
+          <span class="lab"><span class="nm mono">oof-fall-damage.mp3</span><span class="who">@nyx</span></span>
+        </button>
+      </div>
+
+      <div class="bar">
+        <div class="np">
+          <div class="npimg"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#6d5bd0"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg></div>
+          <div class="npt"><span class="mono" style="color:#e8eaed;font-size:11.5px">{{nowName}}</span><span>{{nowWho}}</span></div>
+        </div>
+        <div class="wave2">
+          <i class="lit" style="height:9px"></i><i class="lit" style="height:17px"></i><i class="lit" style="height:6px"></i><i class="lit" style="height:22px"></i><i class="lit" style="height:12px"></i><i class="lit" style="height:8px"></i><i class="lit" style="height:19px"></i><i class="lit" style="height:25px"></i><i style="height:11px"></i><i style="height:6px"></i><i style="height:14px"></i><i style="height:20px"></i><i style="height:9px"></i><i style="height:24px"></i><i style="height:15px"></i><i style="height:7px"></i><i style="height:18px"></i><i style="height:10px"></i><i style="height:23px"></i><i style="height:13px"></i><i style="height:8px"></i><i style="height:21px"></i><i style="height:16px"></i><i style="height:6px"></i><i style="height:19px"></i><i style="height:11px"></i><i style="height:26px"></i><i style="height:14px"></i><i style="height:7px"></i><i style="height:17px"></i><i style="height:22px"></i><i style="height:9px"></i><i style="height:13px"></i><i style="height:20px"></i><i style="height:8px"></i><i style="height:15px"></i>
+        </div>
+        <div class="vol">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 9v6h4l5 4V5L9 9z"></path><path d="M17 9a4 4 0 0 1 0 6"></path></svg>
+          <span class="volbar"><i></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  ctx() {
+    if (!this._ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      this._ctx = AC ? new AC() : null;
+    }
+    return this._ctx;
+  }
+  blip(freq, kind, dur) {
+    const ctx = this.ctx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = kind;
+    osc.frequency.setValueAtTime(freq, t);
+    osc.frequency.exponentialRampToValueAtTime(Math.max(70, freq * 0.55), t + dur);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.2, t + 0.014);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + dur + 0.03);
+  }
+  fire(i, s) {
+    if (s.locked) {
+      this.setState({ on: -1, nudge: i });
+      clearTimeout(this._n);
+      this._n = setTimeout(() => this.setState({ nudge: -1 }), 2200);
+      return;
+    }
+    this.blip(s.f, s.k, s.d);
+    this.setState({ on: i, nudge: -1, name: s.name, who: s.who });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ on: -1 }), 460);
+  }
+  renderVals() {
+    const st = this.state || {};
+    const specs = [
+      { f: 620, k: 'square',   d: 0.22, name: 'kekw-laugh.mp3',      who: '@vexlord' },
+      { f: 880, k: 'sawtooth', d: 0.30, name: 'clutch-scream.wav',   who: '@nova_k', locked: true },
+      { f: 300, k: 'triangle', d: 0.16, name: 'bruh-moment.mp3',     who: '@grimjaw' },
+      { f: 470, k: 'square',   d: 0.24, name: 'gg-go-next.mp3',      who: '@halcyon' },
+      { f: 740, k: 'sawtooth', d: 0.36, name: 'airhorn-hype.wav',    who: '@minttea', locked: true },
+      { f: 1180, k: 'square',  d: 0.12, name: 'rat-noise.wav',       who: '@bricktop' },
+      { f: 540, k: 'triangle', d: 0.26, name: 'sheesh.mp3',          who: '@nyx' },
+      { f: 240, k: 'sine',     d: 0.34, name: 'copium-sigh.mp3',     who: '@pixelpriest', locked: true },
+      { f: 690, k: 'triangle', d: 0.20, name: 'wow-nice.mp3',        who: '@vexlord' },
+      { f: 820, k: 'square',   d: 0.14, name: 'hell-yeah.mp3',       who: '@nova_k' },
+      { f: 360, k: 'sawtooth', d: 0.22, name: 'ded-chat.mp3',        who: '@grimjaw', locked: true },
+      { f: 960, k: 'sine',     d: 0.18, name: 'boing.wav',           who: '@halcyon' },
+      { f: 430, k: 'square',   d: 0.20, name: 'no-way.wav',          who: '@bricktop' },
+      { f: 200, k: 'sine',     d: 0.42, name: 'sad-violin.wav',      who: '@minttea', locked: true },
+      { f: 580, k: 'sawtooth', d: 0.24, name: 'oof-fall-damage.mp3', who: '@nyx' }
+    ];
+    const vals = {
+      nowName: st.name || 'Nothing playing',
+      nowWho: st.who || 'click a pad to fire it'
+    };
+    specs.forEach((s, i) => {
+      vals['p' + i] = () => this.fire(i, s);
+      vals['c' + i] = st.on === i ? 'on' : (st.nudge === i ? 'nudged' : '');
+    });
+    return vals;
+  }
+}
+</script>
+</body>
+</html>

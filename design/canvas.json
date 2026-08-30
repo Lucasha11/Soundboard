@@ -1,0 +1,201 @@
+{
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Consumer"
+    },
+    {
+      "id": "page-2",
+      "name": "Creator upload"
+    },
+    {
+      "id": "page-3",
+      "name": "Library directions"
+    }
+  ],
+  "artboards": [
+    {
+      "file": "Home.dc.html",
+      "title": "Homepage \u00b7 paste a link + icon grid",
+      "page": "page-1",
+      "x": -1400,
+      "y": 0,
+      "w": 1280,
+      "h": 900
+    },
+    {
+      "file": "Landing.dc.html",
+      "title": "Consumer \u00b7 Landing",
+      "page": "page-1",
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 900
+    },
+    {
+      "file": "Board.dc.html",
+      "title": "Consumer \u00b7 Soundboard (click the pads)",
+      "page": "page-1",
+      "x": 1400,
+      "y": 0,
+      "w": 1280,
+      "h": 900
+    },
+    {
+      "file": "Upload.dc.html",
+      "title": "Creator 1 \u00b7 Source and trim",
+      "page": "page-2",
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 900
+    },
+    {
+      "file": "Provenance.dc.html",
+      "title": "Creator 2 \u00b7 Rights check",
+      "page": "page-2",
+      "x": 1400,
+      "y": 0,
+      "w": 1280,
+      "h": 900
+    },
+    {
+      "file": "Main.dc.html",
+      "title": "A \u00b7 Studio Rack",
+      "page": "page-3",
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 900
+    },
+    {
+      "file": "Catalog.dc.html",
+      "title": "B \u00b7 Paper Catalogue",
+      "page": "page-3",
+      "x": 1400,
+      "y": 0,
+      "w": 1280,
+      "h": 900
+    },
+    {
+      "file": "Cassette.dc.html",
+      "title": "C \u00b7 Cassette",
+      "page": "page-3",
+      "x": 0,
+      "y": 1180,
+      "w": 1280,
+      "h": 900
+    },
+    {
+      "file": "Poster.dc.html",
+      "title": "D \u00b7 Poster Grid",
+      "page": "page-3",
+      "x": 1400,
+      "y": 1180,
+      "w": 1280,
+      "h": 900
+    }
+  ],
+  "annotations": [
+    {
+      "id": "note-home",
+      "page": "page-1",
+      "x": -1400,
+      "y": -230,
+      "w": 560,
+      "text": "Homepage \u2014 top half pastes a link, bottom half is the icon grid.\nThe paste box is shaped like a youtube-to-mp4 site, with one change: it resolves the link against a CONNECTED channel and refuses anything that is not yours. That keeps the primary-source rule you set, and keeps you off the pattern that got the youtube-mp3 sites sued.\nThe 16 icon tiles are live \u2014 hover raises the play button, click fires it. Locked tiles refuse."
+    },
+    {
+      "id": "note-land",
+      "page": "page-1",
+      "x": 0,
+      "y": -230,
+      "w": 560,
+      "text": "Consumer \u00b7 Landing \u2014 the main entry point.\nHero, then Popular this week with image icons, then a quick-fire row. Every card and chip is live: hover raises the play button, click fires the sound.\nThe creator door is deliberately small \u2014 a 'For creators' button in the nav and one strip at the foot. Consumers never have to step over an upload flow to get to a sound."
+    },
+    {
+      "id": "note-board",
+      "page": "page-1",
+      "x": 1400,
+      "y": -230,
+      "w": 560,
+      "text": "Consumer \u00b7 Soundboard \u2014 click the pads, they make noise.\n15 pads, hover to raise the play button, click to fire. The four PRO pads refuse and show what they cost you instead. The bottom bar tracks what last played.\nThe sounds are synthesised blips standing in for real audio \u2014 the interaction is real, the audio is a placeholder."
+    },
+    {
+      "id": "note-entry",
+      "page": "page-1",
+      "x": 2680,
+      "y": -230,
+      "w": 440,
+      "text": "Two doors, one product:\n\u00b7 Consumers land here, on the board.\n\u00b7 Creators enter through 'For creators' \u2192 the upload flow on the next page.\nA creator is also a consumer, so the creator path is additive \u2014 it never replaces this nav."
+    },
+    {
+      "id": "note-up1",
+      "page": "page-2",
+      "x": 0,
+      "y": -210,
+      "w": 560,
+      "text": "1 \u00b7 Source and trim\nCreators upload footage they hold, and the card image is a FRAME OF THAT SAME FILE \u2014 which is where the streamer picture and the motion loop come from. No separate avatar upload, no third-party art.\nThe 30s cap and the trim range are the only things published; the source video is never shown in the library."
+    },
+    {
+      "id": "note-up2",
+      "page": "page-2",
+      "x": 1400,
+      "y": -210,
+      "w": 560,
+      "text": "2 \u00b7 Rights check\nThree questions and a signature, filed with the sound. Two of the answers are dead ends by design \u2014 someone else's clip stops the upload, and declared music sends you back to trim \u2014 because both are cheaper to catch here than after publication.\nThe right-hand record is what the product can point to later; none of it appears on the public card."
+    },
+    {
+      "id": "note-gov",
+      "page": "page-2",
+      "x": 2680,
+      "y": -210,
+      "w": 460,
+      "text": "Open questions on this flow, for you:\n\u00b7 Spot-check after publish (drawn here) or review before? Pre-review kills the upload-to-live loop but caps exposure.\n\u00b7 Do you want a written-permission upload field for the third option, or drop that option entirely and take own-footage only?\n\u00b7 Withdrawal is drawn as immediate and reason-free. Confirm that is the policy you want."
+    },
+    {
+      "id": "note-a",
+      "page": "page-3",
+      "x": 0,
+      "y": -180,
+      "w": 560,
+      "text": "A \u00b7 Studio Rack \u2014 the direction the consumer and creator screens are built in.\nDark, dense, tool-like. Filenames in mono are the primary text; PRO is a small outlined tag, never a paywall billboard.\nTradeoff: reads as pro software, which may undersell the fun of the content."
+    },
+    {
+      "id": "note-b",
+      "page": "page-3",
+      "x": 1400,
+      "y": -180,
+      "w": 560,
+      "text": "B \u00b7 Paper Catalogue\nCarries the palette and type from your market-overview doc (warm paper, signal orange, Archivo / Source Serif / JetBrains Mono). Rows, not tiles \u2014 the fastest way to scan filenames, and it puts the creator's name in the sentence.\nTradeoff: least visual; the streamer picture shrinks to a 52px thumb, so GIFs stop being the draw."
+    },
+    {
+      "id": "note-c",
+      "page": "page-3",
+      "x": 0,
+      "y": 1000,
+      "w": 560,
+      "text": "C \u00b7 Cassette\nMaximalist and physical \u2014 thick ink borders, hard offset shadows, sticker badges. Locked cards are hatched over rather than dimmed, so PAID reads as a texture across the grid.\nTradeoff: loudest to build and to live with; the style has to survive 248 items without becoming noise."
+    },
+    {
+      "id": "note-d",
+      "page": "page-3",
+      "x": 1400,
+      "y": 1000,
+      "w": 560,
+      "text": "D \u00b7 Poster Grid\nImage-first: edge-to-edge tiles, one hairline between them, chrome reduced to text. The streamer's face is the interface; the filename sits on a scrim.\nTradeoff: metadata is cramped by design \u2014 long filenames truncate early, and free vs paid is a small dot vs a small lock."
+    },
+    {
+      "id": "note-brief",
+      "page": "page-3",
+      "x": 2680,
+      "y": -180,
+      "w": 420,
+      "text": "Four directions for the sound library.\nSame eight sounds and the same free/paid split in each, so only the design changes.\nOne card in every direction is shown mid-playback.\nStill unpicked \u2014 A is leading, which is why the consumer and creator screens use it."
+    }
+  ],
+  "launch": {
+    "view": "focused",
+    "file": "Home.dc.html"
+  }
+}

@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=DM+Mono:wght@400;500&family=Archivo:wght@600;700;800&display=swap">
+  <style>
+    body { margin: 0; width: 1280px; height: 900px; background: #f7ecd8; color: #171310;
+      font-family: "DM Mono", ui-monospace, Menlo, monospace; -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(#171310 0.6px, transparent 0.6px);
+      background-size: 14px 14px; }
+    a { color: #ff2e88; } a:hover { color: #171310; }
+    .disp { font-family: Bungee, Archivo, sans-serif; font-weight: 400; }
+    .wrap { padding: 32px 40px; }
+    .top { display: flex; align-items: center; gap: 16px; }
+    .logo { background: #171310; color: #ffcf2e; padding: 8px 14px;
+      font-size: 22px; letter-spacing: 0.02em; transform: rotate(-1.5deg);
+      box-shadow: 5px 5px 0 #ff2e88; }
+    .tag { font-size: 12px; max-width: 30ch; line-height: 1.45; color: #4a3f38; }
+    .search { display: flex; align-items: center; gap: 10px; margin-left: auto;
+      background: #fff; border: 2.5px solid #171310; padding: 9px 14px; font-size: 12px;
+      color: #7a6c62; box-shadow: 4px 4px 0 #171310; min-width: 260px; }
+    .filters { display: flex; align-items: center; gap: 10px; margin: 24px 0 20px; }
+    .fchip { border: 2.5px solid #171310; background: #fff; padding: 7px 14px;
+      font-size: 12px; font-weight: 500; box-shadow: 3px 3px 0 #171310; }
+    .fchip.on { background: #ffcf2e; }
+    .fchip.pink { background: #ff2e88; color: #fff; }
+    .tally { margin-left: auto; font-size: 11px; color: #7a6c62; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+    .card { background: #fff; border: 2.5px solid #171310; box-shadow: 6px 6px 0 #171310;
+      position: relative; }
+    .card.playing { box-shadow: 6px 6px 0 #ff2e88; }
+    .thumb { position: relative; aspect-ratio: 1 / 1; border-bottom: 2.5px solid #171310; }
+    .thumb svg.ph { width: 100%; height: 100%; display: block; }
+    .card.locked .thumb::after { content: ""; position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, rgba(23,19,16,0.34) 0 7px, rgba(23,19,16,0) 7px 14px); }
+    .sticker { position: absolute; top: -10px; right: -10px; z-index: 2;
+      display: flex; align-items: center; gap: 4px; padding: 5px 9px;
+      border: 2.5px solid #171310; font-size: 11px; font-weight: 500;
+      transform: rotate(6deg); }
+    .sticker.pro { background: #ff2e88; color: #fff; }
+    .sticker.free { background: #00b8c4; color: #171310; }
+    .dur { position: absolute; left: 8px; bottom: 8px; background: #171310; color: #f7ecd8;
+      padding: 3px 7px; font-size: 10px; }
+    .gif { position: absolute; right: 8px; bottom: 8px; background: #ffcf2e;
+      border: 2px solid #171310; padding: 2px 6px; font-size: 9px; font-weight: 500; }
+    .name { padding: 11px 12px; font-size: 12px; font-weight: 500;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .by { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 0 12px 12px; font-size: 11px; color: #7a6c62; }
+    .bigplay { position: absolute; left: 50%; top: 50%; z-index: 2;
+      width: 62px; height: 62px; margin: -31px 0 0 -31px; border-radius: 50%;
+      background: #ffcf2e; border: 2.5px solid #171310; color: #171310;
+      display: flex; align-items: center; justify-content: center; box-shadow: 3px 3px 0 #171310; }
+    .prog { position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
+      background: rgba(23,19,16,0.18); }
+    .prog i { display: block; height: 6px; width: 44%; background: #ff2e88; }
+  </style>
+</helmet>
+<div class="wrap">
+  <div class="top">
+    <div class="logo disp">SOUNDBOARD</div>
+    <div class="tag">Clips straight from the people who made them. Grab one, fire it anywhere.</div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#171310" stroke-width="2.5"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+      <span>what noise do you need</span>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="fchip on">ALL</div>
+    <div class="fchip">FREE</div>
+    <div class="fchip pink">PRO</div>
+    <div class="fchip">STREAMER</div>
+    <div class="fchip">FRESH DROPS</div>
+    <div class="tally">248 sounds &middot; 31 creators</div>
+  </div>
+
+  <div class="grid">
+    <div class="card playing">
+      <div class="thumb">
+        <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#6d5bd0"></rect><circle cx="50" cy="40" r="17" fill="#171310" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#171310" opacity="0.3"></path></svg>
+        <span class="sticker free">FREE</span>
+        <span class="bigplay"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="5" width="4" height="14" fill="currentColor"></rect><rect x="14" y="5" width="4" height="14" fill="currentColor"></rect></svg></span>
+        <span class="dur">0:02</span>
+        <div class="prog"><i></i></div>
+      </div>
+      <div class="name">kekw-laugh.mp3</div>
+      <div class="by"><span>@vexlord</span></div>
+    </div>
+
+    <div class="card locked">
+      <div class="thumb">
+        <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#d1495b"></rect><circle cx="50" cy="40" r="17" fill="#171310" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#171310" opacity="0.3"></path></svg>
+        <span class="sticker pro"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>PRO</span>
+        <span class="dur">0:03</span>
+        <span class="gif">GIF</span>
+      </div>
+      <div class="name">clutch-scream.wav</div>
+      <div class="by"><span>@nova_k</span></div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#2f6f5e"></rect><circle cx="50" cy="40" r="17" fill="#171310" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#171310" opacity="0.3"></path></svg>
+        <span class="sticker free">FREE</span>
+        <span class="dur">0:01</span>
+      </div>
+      <div class="name">bruh-moment.mp3</div>
+      <div class="by"><span>@grimjaw</span></div>
+    </div>
+
+    <div class="card locked">
+      <div class="thumb">
+        <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#3aa8a0"></rect><circle cx="50" cy="40" r="17" fill="#171310" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#171310" opacity="0.3"></path></svg>
+        <span class="sticker pro"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>PRO</span>
+        <span class="dur">0:04</span>
+      </div>
+      <div class="name">airhorn-hype.wav</div>
+      <div class="by"><span>@minttea</span></div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#c9772a"></rect><circle cx="50" cy="40" r="17" fill="#171310" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#171310" opacity="0.3"></path></svg>
+        <span class="sticker free">FREE</span>
+        <span class="dur">0:02</span>
+        <span class="gif">GIF</span>
+      </div>
+      <div class="name">gg-go-next.mp3</div>
+      <div class="by"><span>@halcyon</span></div>
+    </div>
+
+    <div class="card locked">
+      <div class="thumb">
+        <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#7a4b8f"></rect><circle cx="50" cy="40" r="17" fill="#171310" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#171310" opacity="0.3"></path></svg>
+        <span class="sticker pro"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>PRO</span>
+        <span class="dur">0:03</span>
+      </div>
+      <div class="name">copium-sigh.mp3</div>
+      <div class="by"><span>@pixelpriest</span></div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#9b6a2f"></rect><circle cx="50" cy="40" r="17" fill="#171310" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#171310" opacity="0.3"></path></svg>
+        <span class="sticker free">FREE</span>
+        <span class="dur">0:01</span>
+      </div>
+      <div class="name">rat-noise.wav</div>
+      <div class="by"><span>@bricktop</span></div>
+    </div>
+
+    <div class="card locked">
+      <div class="thumb">
+        <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#34495e"></rect><circle cx="50" cy="40" r="17" fill="#171310" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#171310" opacity="0.3"></path></svg>
+        <span class="sticker pro"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>PRO</span>
+        <span class="dur">0:02</span>
+        <span class="gif">GIF</span>
+      </div>
+      <div class="name">oof-fall-damage.mp3</div>
+      <div class="by"><span>@nyx</span></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

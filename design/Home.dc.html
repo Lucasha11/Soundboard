@@ -1,0 +1,286 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; width: 1280px; height: 900px; background: #101216; color: #e8eaed;
+      font-family: Archivo, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #c8ff2e; } a:hover { color: #dcff7a; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+
+    .nav { display: flex; align-items: center; gap: 24px; height: 56px; padding: 0 32px;
+      border-bottom: 1px solid #262a31; }
+    .brand { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
+    .brand em { font-style: normal; color: #c8ff2e; }
+    .links { display: flex; gap: 18px; font-size: 12.5px; color: #8b9099; }
+    .links .on { color: #e8eaed; }
+    .navr { margin-left: auto; display: flex; align-items: center; gap: 12px;
+      font-size: 12.5px; color: #8b9099; }
+    .chan { display: flex; align-items: center; gap: 7px; padding: 5px 10px;
+      border: 1px solid #2f353d; border-radius: 3px; font-size: 11.5px; color: #b6bcc4; }
+    .chan i { width: 6px; height: 6px; border-radius: 50%; background: #4cc48c;
+      display: block; flex-shrink: 0; }
+
+    .top { padding: 40px 32px 34px; border-bottom: 1px solid #262a31;
+      background: radial-gradient(1000px 380px at 50% -60px, rgba(200,255,46,0.07), transparent 70%); }
+    .tin { max-width: 880px; margin: 0 auto; text-align: center; }
+    h1 { margin: 0; font-size: 40px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.06; }
+    h1 em { font-style: normal; color: #c8ff2e; }
+    .lede { margin: 14px auto 0; font-size: 14.5px; line-height: 1.55; color: #8b9099;
+      max-width: 62ch; text-wrap: pretty; }
+    .paste { display: flex; gap: 10px; margin-top: 26px; }
+    .field { flex-grow: 1; display: flex; align-items: center; gap: 11px; height: 54px;
+      padding: 0 16px; background: #181b21; border: 1px solid #3d444e; border-radius: 4px;
+      font-size: 14px; color: #6f757e; text-align: left; }
+    .field .ph { color: #5c6169; }
+    .go { display: flex; align-items: center; gap: 9px; height: 54px; padding: 0 24px;
+      background: #c8ff2e; color: #101216; border-radius: 4px;
+      font-size: 14px; font-weight: 700; flex-shrink: 0; }
+    .rule { display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 14px; font-size: 11.5px; color: #6f757e; }
+    .rule b { color: #b6bcc4; font-weight: 600; }
+    .rule svg { color: #c8ff2e; flex-shrink: 0; }
+
+    .found { display: flex; align-items: center; gap: 14px; max-width: 880px;
+      margin: 22px auto 0; padding: 12px; background: #181b21;
+      border: 1px solid #262a31; border-radius: 5px; text-align: left; }
+    .fthumb { width: 116px; height: 66px; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+    .fthumb svg { width: 100%; height: 100%; display: block; }
+    .fmeta { min-width: 0; }
+    .ftitle { font-size: 13px; font-weight: 600; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap; }
+    .fsub { display: flex; align-items: center; gap: 9px; margin-top: 5px;
+      font-size: 11.5px; color: #6f757e; }
+    .ok { display: flex; align-items: center; gap: 4px; color: #4cc48c; }
+    .cont { margin-left: auto; flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+      padding: 10px 15px; border: 1px solid #c8ff2e; border-radius: 4px;
+      font-size: 12.5px; font-weight: 700; color: #c8ff2e; }
+
+    .sec { display: flex; align-items: baseline; gap: 12px; padding: 26px 32px 14px; }
+    .sec h2 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+    .sec span { font-size: 12px; color: #6f757e; }
+    .sec .all { margin-left: auto; font-size: 12px; color: #c8ff2e; }
+
+    .icons { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px;
+      padding: 0 32px; }
+    .tile { padding: 0; border: 0; background: none; cursor: pointer; display: block;
+      text-align: left; font-family: inherit; color: inherit; min-width: 0; }
+    .tile:focus-visible { outline: 2px solid #c8ff2e; outline-offset: 3px; border-radius: 6px; }
+    .ic { position: relative; aspect-ratio: 1 / 1; border-radius: 6px; overflow: hidden;
+      border: 1px solid #262a31;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease; }
+    .ic svg.ph { width: 100%; height: 100%; display: block; }
+    .tile:hover .ic { transform: translateY(-3px); border-color: #3d444e; }
+    .glyph { position: absolute; left: 50%; top: 50%; z-index: 3; width: 36px; height: 36px;
+      margin: -18px 0 0 -18px; border-radius: 50%; background: #c8ff2e; color: #101216;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.8); transition: opacity 110ms ease, transform 110ms ease; }
+    .tile:hover .glyph { opacity: 1; transform: scale(1); }
+    .tile.on .ic { transform: translateY(-3px); border-color: #c8ff2e;
+      box-shadow: 0 0 0 1px #c8ff2e, 0 8px 20px -12px rgba(200,255,46,0.6); }
+    .tile.on .glyph { opacity: 1; transform: scale(1); }
+    .tile.locked .ic svg.ph { filter: grayscale(1); opacity: 0.42; }
+    .tile.locked .glyph { background: #2f353d; color: #b6bcc4; }
+    .lk { position: absolute; top: 6px; right: 6px; z-index: 3; display: flex;
+      align-items: center; padding: 3px; border-radius: 3px;
+      background: rgba(16,18,22,0.82); border: 1px solid #c8ff2e; color: #c8ff2e; }
+    .nm { margin-top: 8px; font-size: 10.5px; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap; }
+    .wh { margin-top: 2px; font-size: 9.5px; color: #6f757e;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+</helmet>
+<div>
+  <div class="nav">
+    <div class="brand">SOUND<em>BOARD</em></div>
+    <div class="links"><span class="on">Home</span><span>Soundboard</span><span>Creators</span><span>Pricing</span></div>
+    <div class="navr">
+      <div class="chan"><i></i>YouTube: @vexlord connected</div>
+      <span>Log in</span>
+    </div>
+  </div>
+
+  <div class="top">
+    <div class="tin">
+      <h1>Paste your video. <em>Keep the sound.</em></h1>
+      <p class="lede">Drop a link to a video on your own channel. We pull the audio, you trim the bit you want, and it lands on the board as a sound people can fire.</p>
+
+      <div class="paste">
+        <div class="field">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#8b9099" stroke-width="1.9"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"></path><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"></path></svg>
+          <span class="ph mono">https://www.youtube.com/watch?v=&hellip;</span>
+        </div>
+        <div class="go">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+          Get the sound
+        </div>
+      </div>
+
+      <div class="rule">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>
+        <span><b>Your own uploads only.</b> Connect the channel once and we check the link belongs to it. Links to anyone else&rsquo;s video are refused.</span>
+      </div>
+
+      <div class="found">
+        <div class="fthumb"><svg viewBox="0 0 116 66" preserveAspectRatio="xMidYMid slice"><rect width="116" height="66" fill="#6d5bd0"></rect><circle cx="58" cy="26" r="12" fill="#090a0d" opacity="0.3"></circle><path d="M32 66c0-14 11-21 26-21s26 7 26 21z" fill="#090a0d" opacity="0.3"></path></svg></div>
+        <div class="fmeta">
+          <div class="ftitle">ranked but the aim is gone &mdash; day 4</div>
+          <div class="fsub">
+            <span class="mono">42:16</span>
+            <span>@vexlord</span>
+            <span class="ok"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12l5 5 9-9"></path></svg>on your connected channel</span>
+          </div>
+        </div>
+        <div class="cont">
+          Trim the clip
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Popular right now</h2>
+    <span>hover a tile, click to play it</span>
+    <span class="all">Open the full soundboard &rarr;</span>
+  </div>
+
+  <div class="icons">
+    <button class="tile {{c0}}" onClick="{{p0}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#6d5bd0"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">kekw-laugh.mp3</span><span class="wh">@vexlord</span>
+    </button>
+    <button class="tile locked {{c1}}" onClick="{{p1}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#d1495b"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="lk"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span><span class="glyph"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span></span>
+      <span class="nm mono">clutch-scream.wav</span><span class="wh">@nova_k</span>
+    </button>
+    <button class="tile {{c2}}" onClick="{{p2}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#2f6f5e"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">bruh-moment.mp3</span><span class="wh">@grimjaw</span>
+    </button>
+    <button class="tile {{c3}}" onClick="{{p3}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#c9772a"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">gg-go-next.mp3</span><span class="wh">@halcyon</span>
+    </button>
+    <button class="tile locked {{c4}}" onClick="{{p4}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#3aa8a0"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="lk"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span><span class="glyph"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span></span>
+      <span class="nm mono">airhorn-hype.wav</span><span class="wh">@minttea</span>
+    </button>
+    <button class="tile {{c5}}" onClick="{{p5}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#9b6a2f"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">rat-noise.wav</span><span class="wh">@bricktop</span>
+    </button>
+    <button class="tile {{c6}}" onClick="{{p6}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#34495e"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">sheesh.mp3</span><span class="wh">@nyx</span>
+    </button>
+    <button class="tile locked {{c7}}" onClick="{{p7}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#7a4b8f"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="lk"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span><span class="glyph"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span></span>
+      <span class="nm mono">copium-sigh.mp3</span><span class="wh">@pixelpriest</span>
+    </button>
+
+    <button class="tile {{c8}}" onClick="{{p8}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#5a4bb5"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">wow-nice.mp3</span><span class="wh">@vexlord</span>
+    </button>
+    <button class="tile {{c9}}" onClick="{{p9}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#b0453f"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">hell-yeah.mp3</span><span class="wh">@nova_k</span>
+    </button>
+    <button class="tile locked {{c10}}" onClick="{{p10}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#256054"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="lk"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span><span class="glyph"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span></span>
+      <span class="nm mono">ded-chat.mp3</span><span class="wh">@grimjaw</span>
+    </button>
+    <button class="tile {{c11}}" onClick="{{p11}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#d18a3a"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">boing.wav</span><span class="wh">@halcyon</span>
+    </button>
+    <button class="tile {{c12}}" onClick="{{p12}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#7d6ce0"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">no-way.wav</span><span class="wh">@bricktop</span>
+    </button>
+    <button class="tile locked {{c13}}" onClick="{{p13}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#2f8f88"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="lk"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span><span class="glyph"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span></span>
+      <span class="nm mono">sad-violin.wav</span><span class="wh">@minttea</span>
+    </button>
+    <button class="tile {{c14}}" onClick="{{p14}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#455f7a"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">oof-fall-damage.mp3</span><span class="wh">@nyx</span>
+    </button>
+    <button class="tile {{c15}}" onClick="{{p15}}">
+      <span class="ic"><svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#8f6f3a"></rect><circle cx="50" cy="40" r="17" fill="#090a0d" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#090a0d" opacity="0.3"></path></svg><span class="glyph"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5l11 7-11 7z" fill="currentColor"></path></svg></span></span>
+      <span class="nm mono">nice-try.mp3</span><span class="wh">@bricktop</span>
+    </button>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  ctx() {
+    if (!this._ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      this._ctx = AC ? new AC() : null;
+    }
+    return this._ctx;
+  }
+  blip(freq, kind, dur) {
+    const ctx = this.ctx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = kind;
+    osc.frequency.setValueAtTime(freq, t);
+    osc.frequency.exponentialRampToValueAtTime(Math.max(70, freq * 0.55), t + dur);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.2, t + 0.014);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + dur + 0.03);
+  }
+  fire(i, s) {
+    if (!s.locked) this.blip(s.f, s.k, s.d);
+    this.setState({ on: i });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ on: -1 }), 440);
+  }
+  renderVals() {
+    const st = this.state || {};
+    const specs = [
+      { f: 620, k: 'square',   d: 0.22 },
+      { f: 880, k: 'sawtooth', d: 0.30, locked: true },
+      { f: 300, k: 'triangle', d: 0.16 },
+      { f: 470, k: 'square',   d: 0.24 },
+      { f: 740, k: 'sawtooth', d: 0.36, locked: true },
+      { f: 1180, k: 'square',  d: 0.12 },
+      { f: 540, k: 'triangle', d: 0.26 },
+      { f: 240, k: 'sine',     d: 0.34, locked: true },
+      { f: 690, k: 'triangle', d: 0.20 },
+      { f: 820, k: 'square',   d: 0.14 },
+      { f: 360, k: 'sawtooth', d: 0.22, locked: true },
+      { f: 960, k: 'sine',     d: 0.18 },
+      { f: 430, k: 'square',   d: 0.20 },
+      { f: 200, k: 'sine',     d: 0.42, locked: true },
+      { f: 580, k: 'sawtooth', d: 0.24 },
+      { f: 780, k: 'triangle', d: 0.19 }
+    ];
+    const vals = {};
+    specs.forEach((s, i) => {
+      vals['p' + i] = () => this.fire(i, s);
+      vals['c' + i] = st.on === i ? 'on' : '';
+    });
+    return vals;
+  }
+}
+</script>
+</body>
+</html>

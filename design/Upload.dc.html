@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; width: 1280px; height: 900px; background: #101216; color: #e8eaed;
+      font-family: Archivo, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #c8ff2e; } a:hover { color: #dcff7a; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+    .top { display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 32px;
+      border-bottom: 1px solid #262a31; }
+    .brand { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+    .brand em { font-style: normal; color: #c8ff2e; }
+    .steps { display: flex; align-items: center; gap: 8px; margin-left: 12px;
+      font-size: 12px; color: #6f757e; }
+    .steps b { font-weight: 600; }
+    .steps .on { color: #c8ff2e; }
+    .steps i { font-style: normal; color: #3a3f47; }
+    .acct { margin-left: auto; display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: #8b9099; }
+    .avatar { width: 26px; height: 26px; border-radius: 3px; background: #2f6f5e; }
+    .head { padding: 26px 32px 18px; }
+    h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+    .sub { margin: 7px 0 0; font-size: 13px; color: #8b9099; max-width: 62ch;
+      line-height: 1.5; text-wrap: pretty; }
+    .sub b { color: #c8ff2e; font-weight: 600; }
+    .body { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 24px;
+      padding: 0 32px; }
+    .panel { background: #181b21; border: 1px solid #262a31; border-radius: 4px; }
+    .ptitle { display: flex; align-items: center; gap: 8px; padding: 12px 14px;
+      border-bottom: 1px solid #262a31; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; color: #8b9099; }
+    .video { position: relative; aspect-ratio: 16 / 9; background: #0b0c0f; overflow: hidden; }
+    .video svg.ph { width: 100%; height: 100%; display: block; opacity: 0.85; }
+    .vchip { position: absolute; left: 12px; top: 12px; display: flex; gap: 8px; }
+    .vchip span { background: rgba(11,12,15,0.82); border: 1px solid #262a31;
+      padding: 4px 8px; border-radius: 3px; font-size: 10px; color: #b6bcc4; }
+    .replace { position: absolute; right: 12px; top: 12px; background: rgba(11,12,15,0.82);
+      border: 1px solid #262a31; padding: 4px 10px; border-radius: 3px;
+      font-size: 11px; color: #c8ff2e; }
+    .tl { padding: 14px; }
+    .tlhead { display: flex; align-items: baseline; gap: 10px; font-size: 11px;
+      color: #6f757e; margin-bottom: 9px; }
+    .tlhead b { color: #c8ff2e; font-size: 12px; font-weight: 600; }
+    .wave { position: relative; height: 62px; background: #101216; border: 1px solid #262a31;
+      border-radius: 3px; display: flex; align-items: center; gap: 2px;
+      padding: 0 8px; overflow: hidden; }
+    .wave i { display: block; width: 3px; background: #3a4049; border-radius: 1px; }
+    .sel { position: absolute; left: 27%; width: 17%; top: 0; bottom: 0;
+      background: rgba(200,255,46,0.13); border-left: 2px solid #c8ff2e;
+      border-right: 2px solid #c8ff2e; }
+    .grip { position: absolute; top: 50%; width: 8px; height: 26px; margin-top: -13px;
+      background: #c8ff2e; border-radius: 2px; }
+    .hint { margin-top: 9px; font-size: 11px; color: #6f757e; }
+    .fld { padding: 14px; border-bottom: 1px solid #262a31; }
+    .fld:last-child { border-bottom: 0; }
+    .lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: #8b9099;
+      margin-bottom: 8px; }
+    .input { display: flex; align-items: center; height: 34px; padding: 0 11px;
+      background: #101216; border: 1px solid #2f353d; border-radius: 3px;
+      font-size: 12px; color: #e8eaed; }
+    .frames { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+    .frame { position: relative; aspect-ratio: 1 / 1; border-radius: 3px; overflow: hidden;
+      border: 1px solid #262a31; }
+    .frame.on { border-color: #c8ff2e; box-shadow: 0 0 0 1px #c8ff2e; }
+    .frame svg { width: 100%; height: 100%; display: block; }
+    .toggle { display: flex; align-items: center; gap: 9px; margin-top: 10px;
+      font-size: 12px; color: #b6bcc4; }
+    .sw { width: 30px; height: 17px; border-radius: 9px; background: #c8ff2e;
+      position: relative; flex-shrink: 0; }
+    .sw span { position: absolute; right: 2px; top: 2px; width: 13px; height: 13px;
+      border-radius: 50%; background: #101216; display: block; }
+    .seg { display: flex; border: 1px solid #2f353d; border-radius: 3px; overflow: hidden; }
+    .seg span { flex-grow: 1; text-align: center; padding: 7px 0; font-size: 12px;
+      font-weight: 600; color: #8b9099; border-right: 1px solid #2f353d; }
+    .seg span:last-child { border-right: 0; }
+    .seg span.on { background: #c8ff2e; color: #101216; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { padding: 4px 9px; border: 1px solid #2f353d; border-radius: 3px;
+      font-size: 11px; color: #b6bcc4; }
+    .foot { display: flex; align-items: center; gap: 14px; margin: 20px 32px 0;
+      padding: 14px 16px; background: #181b21; border: 1px solid #262a31; border-radius: 4px; }
+    .foot .ic { color: #c8ff2e; flex-shrink: 0; }
+    .foot p { margin: 0; font-size: 12px; color: #8b9099; line-height: 1.45; max-width: 70ch; }
+    .foot p b { color: #e8eaed; font-weight: 600; }
+    .cta { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .ghost { padding: 9px 14px; border: 1px solid #2f353d; border-radius: 3px;
+      font-size: 12px; font-weight: 600; color: #b6bcc4; }
+    .prim { padding: 9px 16px; border-radius: 3px; background: #c8ff2e; color: #101216;
+      font-size: 12px; font-weight: 700; }
+  </style>
+</helmet>
+<div>
+  <div class="top">
+    <div class="brand">SOUND<em>BOARD</em></div>
+    <div class="steps"><b class="on">1 Source</b><i>&rsaquo;</i><b>2 Rights</b><i>&rsaquo;</i><b>3 Publish</b></div>
+    <div class="acct"><span>@vexlord</span><div class="avatar"></div></div>
+  </div>
+
+  <div class="head">
+    <h1>Cut a sound from your own footage</h1>
+    <p class="sub">Upload a video you recorded &mdash; your VOD, your capture, your camera roll. We pull the audio and the card image from the same file, so every sound in the library traces back to a <b>primary source you hold</b>. Third-party clips are not accepted.</p>
+  </div>
+
+  <div class="body">
+    <div class="panel">
+      <div class="ptitle">SOURCE VIDEO</div>
+      <div class="video">
+        <svg class="ph" viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice"><rect width="160" height="90" fill="#6d5bd0"></rect><circle cx="80" cy="38" r="16" fill="#0b0c0f" opacity="0.3"></circle><path d="M46 90c0-19 15-28 34-28s34 9 34 28z" fill="#0b0c0f" opacity="0.3"></path></svg>
+        <div class="vchip"><span class="mono">stream-vod-0412.mp4</span><span class="mono">00:42</span><span class="mono">1080p</span></div>
+        <div class="replace">Replace</div>
+      </div>
+      <div class="tl">
+        <div class="tlhead"><b class="mono">00:12.40 &rarr; 00:14.60</b><span>2.20s selected</span><span style="margin-left:auto">drag the handles to trim</span></div>
+        <div class="wave">
+          <i style="height:14px"></i><i style="height:26px"></i><i style="height:9px"></i><i style="height:33px"></i><i style="height:18px"></i><i style="height:11px"></i><i style="height:24px"></i><i style="height:38px"></i><i style="height:16px"></i><i style="height:8px"></i><i style="height:21px"></i><i style="height:30px"></i><i style="height:13px"></i><i style="height:44px"></i><i style="height:36px"></i><i style="height:48px"></i><i style="height:41px"></i><i style="height:29px"></i><i style="height:19px"></i><i style="height:12px"></i><i style="height:25px"></i><i style="height:17px"></i><i style="height:32px"></i><i style="height:10px"></i><i style="height:22px"></i><i style="height:15px"></i><i style="height:28px"></i><i style="height:35px"></i><i style="height:12px"></i><i style="height:20px"></i><i style="height:9px"></i><i style="height:27px"></i><i style="height:16px"></i><i style="height:31px"></i><i style="height:23px"></i><i style="height:11px"></i><i style="height:18px"></i><i style="height:26px"></i><i style="height:14px"></i><i style="height:8px"></i>
+          <div class="sel"><span class="grip" style="left:-5px"></span><span class="grip" style="right:-5px"></span></div>
+        </div>
+        <div class="hint">Sounds are capped at 30 seconds. The trimmed range is what gets published &mdash; the full video is never shown in the library.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">CARD &amp; LISTING</div>
+      <div class="fld">
+        <div class="lbl">CARD IMAGE &mdash; FROM YOUR CLIP</div>
+        <div class="frames">
+          <div class="frame"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#5a4bb5"></rect><circle cx="50" cy="40" r="17" fill="#0b0c0f" opacity="0.32"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#0b0c0f" opacity="0.32"></path></svg></div>
+          <div class="frame on"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#6d5bd0"></rect><circle cx="50" cy="40" r="17" fill="#0b0c0f" opacity="0.28"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#0b0c0f" opacity="0.28"></path></svg></div>
+          <div class="frame"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#7d6ce0"></rect><circle cx="50" cy="40" r="17" fill="#0b0c0f" opacity="0.24"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#0b0c0f" opacity="0.24"></path></svg></div>
+          <div class="frame"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#4c3f9c"></rect><circle cx="50" cy="40" r="17" fill="#0b0c0f" opacity="0.36"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#0b0c0f" opacity="0.36"></path></svg></div>
+        </div>
+        <div class="toggle"><span class="sw"><span></span></span>Also make a 2s motion loop from this range</div>
+      </div>
+      <div class="fld">
+        <div class="lbl">FILE NAME</div>
+        <div class="input mono">clutch-scream.wav</div>
+        <div class="hint">This is what people see on the card.</div>
+      </div>
+      <div class="fld">
+        <div class="lbl">ACCESS</div>
+        <div class="seg"><span>Free</span><span class="on">Paid</span></div>
+        <div class="hint">You set this per sound and can change it later.</div>
+      </div>
+      <div class="fld">
+        <div class="lbl">TAGS</div>
+        <div class="tags"><span class="tag">scream</span><span class="tag">clutch</span><span class="tag">fps</span><span class="tag">+ add</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg></span>
+    <p><b>Next: the rights check.</b> You confirm where this footage came from and that you can publish the voices in it. Nothing goes live until that is on record.</p>
+    <div class="cta"><div class="ghost">Save draft</div><div class="prim">Continue to rights check</div></div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

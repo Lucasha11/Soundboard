@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; width: 1280px; height: 900px; background: #101216; color: #e8eaed;
+      font-family: Archivo, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #c8ff2e; } a:hover { color: #dcff7a; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+    .top { display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 32px;
+      border-bottom: 1px solid #262a31; }
+    .brand { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+    .brand em { font-style: normal; color: #c8ff2e; }
+    .steps { display: flex; align-items: center; gap: 8px; margin-left: 12px;
+      font-size: 12px; color: #6f757e; }
+    .steps b { font-weight: 600; }
+    .steps .done { color: #8b9099; }
+    .steps .on { color: #c8ff2e; }
+    .steps i { font-style: normal; color: #3a3f47; }
+    .acct { margin-left: auto; display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: #8b9099; }
+    .avatar { width: 26px; height: 26px; border-radius: 3px; background: #2f6f5e; }
+    .head { padding: 26px 32px 18px; }
+    h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+    .sub { margin: 7px 0 0; font-size: 13px; color: #8b9099; max-width: 70ch;
+      line-height: 1.5; text-wrap: pretty; }
+    .body { display: grid; grid-template-columns: minmax(0, 1fr) 424px; gap: 24px;
+      padding: 0 32px; }
+    .panel { background: #181b21; border: 1px solid #262a31; border-radius: 4px; }
+    .ptitle { display: flex; align-items: center; gap: 8px; padding: 12px 14px;
+      border-bottom: 1px solid #262a31; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; color: #8b9099; }
+    .q { padding: 15px 16px; border-bottom: 1px solid #262a31; }
+    .q:last-child { border-bottom: 0; }
+    .qt { font-size: 13px; font-weight: 600; margin-bottom: 11px; }
+    .opt { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0;
+      font-size: 12.5px; color: #b6bcc4; line-height: 1.4; }
+    .radio { width: 15px; height: 15px; border-radius: 50%; border: 1px solid #3a4049;
+      flex-shrink: 0; margin-top: 1px; position: relative; }
+    .radio.on { border-color: #c8ff2e; }
+    .radio.on span { position: absolute; left: 3px; top: 3px; width: 7px; height: 7px;
+      border-radius: 50%; background: #c8ff2e; display: block; }
+    .opt.off { color: #5c6169; }
+    .opt.off .radio { border-color: #2f353d; }
+    .blocked { display: flex; gap: 9px; margin: 4px 0 0 25px; padding: 9px 11px;
+      background: rgba(240,103,90,0.09); border-left: 2px solid #f0675a; border-radius: 0 3px 3px 0;
+      font-size: 11.5px; color: #f0a79e; line-height: 1.45; }
+    .box { width: 15px; height: 15px; border-radius: 3px; border: 1px solid #3a4049;
+      flex-shrink: 0; margin-top: 1px; }
+    .box.on { background: #c8ff2e; border-color: #c8ff2e; color: #101216;
+      display: flex; align-items: center; justify-content: center; }
+    .two { display: flex; gap: 26px; }
+    .sign { display: flex; align-items: center; gap: 12px; margin: 12px 0 0 25px; }
+    .input { display: flex; align-items: center; height: 32px; padding: 0 11px;
+      background: #101216; border: 1px solid #2f353d; border-radius: 3px;
+      font-size: 12px; color: #e8eaed; min-width: 220px; }
+    .ilbl { font-size: 11px; color: #6f757e; }
+    .rec { padding: 14px 16px; }
+    .row { display: flex; gap: 12px; padding: 6px 0; font-size: 11.5px; line-height: 1.4; }
+    .k { color: #6f757e; width: 132px; flex-shrink: 0; }
+    .v { color: #b6bcc4; word-break: break-all; }
+    .v.good { color: #4cc48c; }
+    .note { margin: 12px 16px 14px; padding: 11px 12px; background: #101216;
+      border: 1px solid #262a31; border-radius: 3px; font-size: 11.5px; color: #8b9099;
+      line-height: 1.5; }
+    .note b { color: #e8eaed; font-weight: 600; }
+    .foot { display: flex; align-items: center; gap: 14px; margin: 20px 32px 0;
+      padding: 14px 16px; background: #181b21; border: 1px solid #262a31; border-radius: 4px; }
+    .foot p { margin: 0; font-size: 12px; color: #8b9099; line-height: 1.45; max-width: 74ch; }
+    .cta { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .ghost { padding: 9px 14px; border: 1px solid #2f353d; border-radius: 3px;
+      font-size: 12px; font-weight: 600; color: #b6bcc4; }
+    .prim { padding: 9px 16px; border-radius: 3px; background: #c8ff2e; color: #101216;
+      font-size: 12px; font-weight: 700; }
+  </style>
+</helmet>
+<div>
+  <div class="top">
+    <div class="brand">SOUND<em>BOARD</em></div>
+    <div class="steps"><b class="done">1 Source</b><i>&rsaquo;</i><b class="on">2 Rights</b><i>&rsaquo;</i><b>3 Publish</b></div>
+    <div class="acct"><span>@vexlord</span><div class="avatar"></div></div>
+  </div>
+
+  <div class="head">
+    <h1>Rights check</h1>
+    <p class="sub">Three questions, answered once per upload. They are what let this sound sit in a public library &mdash; and what we can point to if anyone ever asks where it came from.</p>
+  </div>
+
+  <div class="body">
+    <div class="panel">
+      <div class="ptitle">YOUR DECLARATION</div>
+
+      <div class="q">
+        <div class="qt">Where did this footage come from?</div>
+        <div class="opt"><span class="radio on"><span></span></span>I recorded it on my own channel or stream</div>
+        <div class="opt"><span class="radio"></span>I recorded it myself, off-platform</div>
+        <div class="opt"><span class="radio"></span>Someone else recorded it and gave me written permission &mdash; I can attach it</div>
+        <div class="opt off"><span class="radio"></span>It is someone else&rsquo;s clip</div>
+        <div class="blocked">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6"></path><path d="M12 16.5v.5"></path></svg>
+          <span>Choosing this stops the upload. We only take primary sources &mdash; footage you shot or hold permission for. Re-uploads of other people&rsquo;s clips are removed and repeat uploads cost the account.</span>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="qt">Is there music under the trimmed range?</div>
+        <div class="two">
+          <div class="opt"><span class="radio on"><span></span></span>No music in those 2.2 seconds</div>
+          <div class="opt"><span class="radio"></span>Yes, there is music</div>
+        </div>
+        <div class="blocked">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6"></path><path d="M12 16.5v.5"></path></svg>
+          <span>Answering yes sends you back to trim. A track you did not license is the most common reason a clip has to come down later, and it is easier to cut around now.</span>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="qt">Who is audible?</div>
+        <div class="opt"><span class="box on"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M5 12l5 5 9-9"></path></svg></span>Only me</div>
+        <div class="opt"><span class="box"></span>Other people are audible, and each of them has agreed to this clip being published as a sound</div>
+      </div>
+
+      <div class="q">
+        <div class="opt"><span class="box on"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M5 12l5 5 9-9"></path></svg></span><span>I confirm the answers above are accurate, and I can be contacted about this sound.</span></div>
+        <div class="sign"><span class="ilbl">Signed</span><div class="input mono">vexlord</div><span class="ilbl mono">2026-08-29 14:22 UTC</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">STORED WITH THIS SOUND</div>
+      <div class="rec">
+        <div class="row"><span class="k mono">uploader</span><span class="v mono">@vexlord &middot; usr_8f21c4</span></div>
+        <div class="row"><span class="k mono">source</span><span class="v mono">own_channel_recording</span></div>
+        <div class="row"><span class="k mono">original_file</span><span class="v mono">stream-vod-0412.mp4</span></div>
+        <div class="row"><span class="k mono">file_digest</span><span class="v mono">sha256:9c1f&hellip;a740</span></div>
+        <div class="row"><span class="k mono">trim_range</span><span class="v mono">00:12.40&ndash;00:14.60</span></div>
+        <div class="row"><span class="k mono">music_declared</span><span class="v mono">none</span></div>
+        <div class="row"><span class="k mono">voice_consent</span><span class="v mono">uploader_only</span></div>
+        <div class="row"><span class="k mono">attested_at</span><span class="v mono">2026-08-29T14:22Z</span></div>
+        <div class="row"><span class="k mono">status</span><span class="v mono good">complete</span></div>
+      </div>
+      <div class="note"><b>Where this record goes.</b> It stays attached to the sound and is visible to you and to review. It is never shown on the public card &mdash; listeners see the picture, the file name and the price, nothing about you beyond your handle.</div>
+      <div class="note"><b>You can withdraw it.</b> Pulling a sound removes it from the library and from every board that saved it, and the source video is deleted with it. Withdrawal is immediate and needs no reason.</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>Sounds go live as soon as this is filed. Uploads are spot-checked after publication, not before &mdash; a clip that fails a check is pulled and you are told why.</p>
+    <div class="cta"><div class="ghost">Back to trim</div><div class="prim">File and publish</div></div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

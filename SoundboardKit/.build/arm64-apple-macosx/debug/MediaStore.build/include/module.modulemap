@@ -1,0 +1,3 @@
+module MediaStore {
+    header "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/MediaStore.build/include/MediaStore-Swift.h"
+}

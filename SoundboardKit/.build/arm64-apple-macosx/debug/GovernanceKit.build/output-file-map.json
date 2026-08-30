@@ -1,0 +1,33 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/master.swiftdeps"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/GovernanceKit/ClassifiedRecord.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ClassifiedRecord.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ClassifiedRecord.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ClassifiedRecord~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ClassifiedRecord.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ClassifiedRecord.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/GovernanceKit/DataClass.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/DataClass.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/DataClass.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/DataClass~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/DataClass.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/DataClass.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/GovernanceKit/ImportFailure.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ImportFailure.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ImportFailure.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ImportFailure~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ImportFailure.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/ImportFailure.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/GovernanceKit/RedactingLogger.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/RedactingLogger.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/RedactingLogger.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/RedactingLogger~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/RedactingLogger.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/RedactingLogger.dia"
+  }
+}

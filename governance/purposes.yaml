@@ -1,0 +1,53 @@
+# Registered processing purposes. DG-PURP-01.
+# A purpose not listed here may not be implemented.
+version: 1.0
+purposes:
+  - id: P-SERVE
+    description: Deliver requested audio playback to a user
+    lawful_basis: contract
+    consent_required: false
+    data_classes: [C1, C2, C4]
+    retention_ref: session_and_device_identifiers
+
+  - id: P-RANK
+    description: Rank sounds by first-party engagement signals
+    lawful_basis: legitimate_interest
+    consent_required: false
+    opt_out: true
+    data_classes: [C1]
+    retention_ref: aggregated_engagement_counters
+
+  - id: P-CREATOR-ANALYTICS
+    description: Show a creator aggregate statistics for their own sounds
+    lawful_basis: contract
+    consent_required: false
+    data_classes: [C1]
+    retention_ref: aggregated_engagement_counters
+
+  - id: P-SAFETY
+    description: Abuse, fraud, moderation, and takedown handling
+    lawful_basis: legal_obligation
+    consent_required: false
+    data_classes: [C2, C4]
+    retention_ref: moderation_and_takedown_record
+
+  - id: P-PAYMENT
+    description: Process paid triggers and creator payouts
+    lawful_basis: contract
+    consent_required: false
+    data_classes: [C3]
+    retention_ref: payment_transaction_record
+
+  - id: P-PRODUCT-ANALYTICS
+    description: Product improvement telemetry
+    lawful_basis: consent
+    consent_required: true
+    data_classes: [C2]
+    retention_ref: raw_engagement_events
+
+  - id: P-MARKETING
+    description: Lifecycle and re-engagement messaging
+    lawful_basis: consent
+    consent_required: true
+    data_classes: [C2]
+    retention_ref: account_record

@@ -1,0 +1,28 @@
+name: governance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - name: Capture PR body
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: printf '%s' "$PR_BODY" > pr_body.txt
+      - name: Governance gate
+        run: |
+          if [ -f pr_body.txt ]; then
+            python3 governance/check.py --pr pr_body.txt
+          else
+            python3 governance/check.py
+          fi

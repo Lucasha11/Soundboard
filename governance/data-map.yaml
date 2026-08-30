@@ -1,0 +1,157 @@
+# Every persisted field and analytics event. DG-CLASS-03, DG-RET-01, DG-LOG-05.
+# A field absent from this file must not be persisted. An event absent from this
+# file is dropped by the pipeline. Untagged fields are treated as C3.
+version: 1.0
+
+retention_policies:
+  raw_engagement_events:          { days: 90,    basis: rolling }
+  aggregated_engagement_counters: { days: 730,   basis: rolling }
+  account_record:                 { days: 30,    basis: after_account_deletion }
+  session_and_device_identifiers: { days: 395,   basis: rolling }
+  ip_address:                     { days: 7,     basis: rolling }
+  payment_transaction_record:     { days: 2555,  basis: legal_retention }
+  audio_asset:                    { days: 0,     basis: on_revocation_or_delete }
+  license_and_provenance_chain:   { days: 2555,  basis: after_asset_deletion }
+  moderation_and_takedown_record: { days: 1095,  basis: legal_defence }
+  ranking_audit_record:           { days: 730,   basis: rolling }
+  application_logs:               { days: 30,    basis: rolling }
+  # On-device personal lane. Media the user imported for their own board never
+  # leaves the device, so retention is user-controlled rather than time-based.
+  # P10 still requires a declared policy, and deletion is immediate and hard.
+  device_local_user_content:      { days: 0,     basis: on_user_delete }
+  device_local_board_layout:      { days: 0,     basis: on_user_delete }
+
+# ---- Persisted fields ----------------------------------------------------
+# store: logical table or collection
+# class: C0 | C1 | C2 | C3 | C4
+fields:
+  # ---- Personal lane, on device only. Nothing here is transmitted. ----------
+  - store: sound
+    field: id
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: false
+    exportable: true
+    deletable: true
+  - store: sound
+    field: title
+    class: C2
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: true
+    exportable: true
+    deletable: true
+  - store: sound
+    field: duration_ms
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: false
+    exportable: true
+    deletable: true
+  # Clip audio can carry a voice, which Section 2 classes as C3. Classified by
+  # what the field can hold, not by what a given import happens to contain.
+  - store: media_blob
+    field: audio_payload
+    class: C3
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: true
+    exportable: true
+    deletable: true
+  - store: media_blob
+    field: visual_payload
+    class: C4
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: true
+    exportable: true
+    deletable: true
+  - store: media_blob
+    field: sha256
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: false
+    exportable: false
+    deletable: true
+  - store: media_blob
+    field: refcount
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: false
+    exportable: false
+    deletable: true
+  - store: board
+    field: name
+    class: C2
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_board_layout
+    encrypted_at_rest: true
+    exportable: true
+    deletable: true
+  - store: board_tile
+    field: board_id
+    class: C2
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_board_layout
+    encrypted_at_rest: true
+    exportable: true
+    deletable: true
+  - store: board_tile
+    field: sound_id
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_board_layout
+    encrypted_at_rest: false
+    exportable: true
+    deletable: true
+  - store: board_tile
+    field: position
+    class: C2
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_board_layout
+    encrypted_at_rest: true
+    exportable: true
+    deletable: true
+  # import_job deliberately has no source_filename field. DG-LOG-01 bars upload
+  # filenames from logs and no shipped feature consumes one (P12).
+  - store: import_job
+    field: id
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: application_logs
+    encrypted_at_rest: false
+    exportable: false
+    deletable: true
+  - store: import_job
+    field: failure_code
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: application_logs
+    encrypted_at_rest: false
+    exportable: false
+    deletable: true
+
+# Template:
+#  - store: accounts
+#    field: email
+#    class: C2
+#    purpose_ids: [P-SERVE]
+#    retention_ref: account_record
+#    encrypted_at_rest: true
+#    exportable: true          # included in a consumer access request
+#    deletable: true           # removed on a deletion request
+
+# ---- Analytics events ----------------------------------------------------
+events: []
+# Template:
+#  - name: sound_played
+#    class: C2
+#    purpose_ids: [P-RANK, P-PRODUCT-ANALYTICS]
+#    retention_ref: raw_engagement_events
+#    properties:
+#      - { name: sound_id,   class: C1 }
+#      - { name: session_id, class: C2 }

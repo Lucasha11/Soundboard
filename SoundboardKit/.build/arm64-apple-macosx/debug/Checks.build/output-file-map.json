@@ -1,0 +1,68 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/master.swiftdeps"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/Checks/AudioChecks.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/AudioChecks.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/AudioChecks.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/AudioChecks~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/AudioChecks.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/AudioChecks.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/Checks/EndToEndChecks.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/EndToEndChecks.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/EndToEndChecks.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/EndToEndChecks~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/EndToEndChecks.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/EndToEndChecks.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/Checks/GovernanceChecks.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/GovernanceChecks.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/GovernanceChecks.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/GovernanceChecks~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/GovernanceChecks.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/GovernanceChecks.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/Checks/Harness.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/Harness.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/Harness.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/Harness~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/Harness.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/Harness.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/Checks/PlaybackChecks.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/PlaybackChecks.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/PlaybackChecks.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/PlaybackChecks~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/PlaybackChecks.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/PlaybackChecks.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/Checks/StoreChecks.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/StoreChecks.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/StoreChecks.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/StoreChecks~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/StoreChecks.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/StoreChecks.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/Checks/VerifierChecks.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VerifierChecks.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VerifierChecks.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VerifierChecks~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VerifierChecks.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VerifierChecks.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/Checks/VisualChecks.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VisualChecks.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VisualChecks.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VisualChecks~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VisualChecks.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/VisualChecks.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/Checks/main.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/main.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/main.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/main~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/main.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/Checks.build/main.dia"
+  }
+}

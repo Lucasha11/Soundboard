@@ -1,0 +1,798 @@
+<title>Sounds as a Commodity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+  :root {
+    --pad-ink: #14161a;
+    --pad-ground: #eceae5;
+    --pad-surface: #ffffff;
+    --pad-sunk: #e2dfd8;
+    --pad-line: #cdc9c0;
+    --pad-text: #17191d;
+    --pad-muted: #5f6169;
+    --pad-faint: #8b8d95;
+    --pad-signal: #ff4d2e;
+    --pad-signal-soft: rgba(255, 77, 46, 0.12);
+    --pad-good: #1f7a52;
+    --pad-warn: #b07407;
+    --pad-bad: #b3271a;
+    --pad-good-bg: rgba(31, 122, 82, 0.11);
+    --pad-warn-bg: rgba(176, 116, 7, 0.13);
+    --pad-bad-bg: rgba(179, 39, 26, 0.11);
+    --pad-shadow: 0 1px 0 rgba(20, 22, 26, 0.06), 0 8px 24px -18px rgba(20, 22, 26, 0.55);
+    --pad-max: 74ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --pad-ink: #0c0d10;
+      --pad-ground: #131519;
+      --pad-surface: #1a1d22;
+      --pad-sunk: #101216;
+      --pad-line: #2c3037;
+      --pad-text: #e8e6e1;
+      --pad-muted: #a0a2ab;
+      --pad-faint: #767982;
+      --pad-signal: #ff6a4d;
+      --pad-signal-soft: rgba(255, 106, 77, 0.16);
+      --pad-good: #4cc48c;
+      --pad-warn: #e0a437;
+      --pad-bad: #f0675a;
+      --pad-good-bg: rgba(76, 196, 140, 0.13);
+      --pad-warn-bg: rgba(224, 164, 55, 0.13);
+      --pad-bad-bg: rgba(240, 103, 90, 0.13);
+      --pad-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 10px 30px -20px #000;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --pad-ink: #0c0d10;
+    --pad-ground: #131519;
+    --pad-surface: #1a1d22;
+    --pad-sunk: #101216;
+    --pad-line: #2c3037;
+    --pad-text: #e8e6e1;
+    --pad-muted: #a0a2ab;
+    --pad-faint: #767982;
+    --pad-signal: #ff6a4d;
+    --pad-signal-soft: rgba(255, 106, 77, 0.16);
+    --pad-good: #4cc48c;
+    --pad-warn: #e0a437;
+    --pad-bad: #f0675a;
+    --pad-good-bg: rgba(76, 196, 140, 0.13);
+    --pad-warn-bg: rgba(224, 164, 55, 0.13);
+    --pad-bad-bg: rgba(240, 103, 90, 0.13);
+    --pad-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 10px 30px -20px #000;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--pad-ground);
+    color: var(--pad-text);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  .col {
+    max-width: var(--pad-max);
+  }
+
+  h1, h2, h3, .ui {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .mono, code, td.num, .pad-score, .meter-val {
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a { color: inherit; text-decoration-color: var(--pad-signal); text-underline-offset: 3px; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--pad-signal); outline-offset: 3px; }
+
+  /* ---- masthead ---- */
+
+  .masthead {
+    background: var(--pad-ink);
+    color: #f2f0eb;
+    border-bottom: 3px solid var(--pad-signal);
+  }
+  .masthead-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 34px 24px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .eyebrow {
+    font-family: Archivo, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--pad-signal);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+  .eyebrow span:not(:first-child) { color: rgba(242, 240, 235, 0.55); }
+  h1 {
+    margin: 0;
+    font-size: clamp(34px, 6vw, 58px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+    text-wrap: balance;
+  }
+  h1 em { font-style: normal; color: var(--pad-signal); }
+  .standfirst {
+    margin: 0;
+    max-width: 62ch;
+    font-size: 19px;
+    color: rgba(242, 240, 235, 0.78);
+  }
+
+  /* ---- verdict rail ---- */
+
+  .verdict {
+    display: grid;
+    grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+    background: var(--pad-surface);
+    border: 1px solid var(--pad-line);
+    border-radius: 4px;
+    box-shadow: var(--pad-shadow);
+    padding: 26px;
+    margin: -34px 0 0;
+    position: relative;
+    z-index: 2;
+  }
+  @media (max-width: 700px) { .verdict { grid-template-columns: 1fr; gap: 20px; } }
+
+  .score-block { display: flex; flex-direction: column; gap: 6px; }
+  .score-num {
+    font-family: Archivo, sans-serif;
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--pad-warn);
+    font-variant-numeric: tabular-nums;
+  }
+  .score-num small { font-size: 22px; color: var(--pad-faint); font-weight: 600; }
+  .label {
+    font-family: Archivo, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--pad-faint);
+  }
+  .verdict-call {
+    font-family: Archivo, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px;
+    color: var(--pad-text);
+  }
+  .verdict p { margin: 0 0 12px; }
+  .verdict p:last-child { margin-bottom: 0; }
+
+  /* ---- meters ---- */
+
+  .meters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1px;
+    background: var(--pad-line);
+    border: 1px solid var(--pad-line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .meter {
+    background: var(--pad-surface);
+    padding: 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .meter-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .meter-name { font-family: Archivo, sans-serif; font-weight: 600; font-size: 14px; letter-spacing: -0.005em; }
+  .meter-val { font-size: 13px; font-weight: 700; }
+  .bar { height: 7px; background: var(--pad-sunk); border-radius: 2px; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 2px; }
+  .meter small { font-size: 13.5px; color: var(--pad-muted); line-height: 1.45; font-family: "Source Serif 4", Georgia, serif; }
+  .lv-good i { background: var(--pad-good); }
+  .lv-warn i { background: var(--pad-warn); }
+  .lv-bad  i { background: var(--pad-bad); }
+  .lv-good .meter-val { color: var(--pad-good); }
+  .lv-warn .meter-val { color: var(--pad-warn); }
+  .lv-bad  .meter-val { color: var(--pad-bad); }
+
+  /* ---- sections ---- */
+
+  section { margin-top: 64px; }
+  h2 {
+    margin: 0 0 6px;
+    font-size: clamp(24px, 3.4vw, 32px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+  .kicker {
+    display: block;
+    font-family: Archivo, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--pad-signal);
+    margin-bottom: 12px;
+  }
+  .dek { margin: 0 0 26px; color: var(--pad-muted); font-size: 18px; max-width: 66ch; }
+  p { margin: 0 0 18px; }
+  ul { margin: 0 0 18px; padding-left: 20px; }
+  li { margin-bottom: 9px; }
+  strong { font-weight: 600; }
+
+  /* ---- table ---- */
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--pad-line); border-radius: 4px; background: var(--pad-surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 700px; font-size: 15px; }
+  th, td { text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--pad-line); vertical-align: top; }
+  thead th {
+    font-family: Archivo, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pad-faint);
+    background: var(--pad-sunk);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.name { font-family: Archivo, sans-serif; font-weight: 600; white-space: nowrap; }
+  td.num { font-size: 13.5px; white-space: nowrap; }
+  .note { font-size: 13.5px; color: var(--pad-muted); margin-top: 10px; }
+
+  /* ---- callouts ---- */
+
+  .callout {
+    border: 1px solid var(--pad-line);
+    border-left: 4px solid var(--pad-signal);
+    background: var(--pad-surface);
+    border-radius: 0 4px 4px 0;
+    padding: 20px 22px;
+    margin: 0 0 22px;
+  }
+  .callout .label { margin-bottom: 8px; display: block; color: var(--pad-signal); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout.bad { border-left-color: var(--pad-bad); }
+  .callout.bad .label { color: var(--pad-bad); }
+  .callout.good { border-left-color: var(--pad-good); }
+  .callout.good .label { color: var(--pad-good); }
+
+  /* ---- risk cards ---- */
+
+  .risks { display: grid; gap: 14px; }
+  .risk {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 20px;
+    background: var(--pad-surface);
+    border: 1px solid var(--pad-line);
+    border-radius: 4px;
+    padding: 18px 20px;
+  }
+  @media (max-width: 620px) { .risk { grid-template-columns: 1fr; gap: 10px; } }
+  .sev {
+    font-family: Archivo, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 9px;
+    border-radius: 3px;
+    align-self: start;
+    text-align: center;
+  }
+  .sev-kill { background: var(--pad-bad-bg); color: var(--pad-bad); }
+  .sev-high { background: var(--pad-warn-bg); color: var(--pad-warn); }
+  .sev-med  { background: var(--pad-good-bg); color: var(--pad-good); }
+  .risk h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .risk p { margin: 0; font-size: 15.5px; color: var(--pad-muted); }
+  .risk p + p { margin-top: 8px; }
+
+  /* ---- wedge steps ---- */
+
+  .steps { counter-reset: step; display: grid; gap: 2px; background: var(--pad-line); border: 1px solid var(--pad-line); border-radius: 4px; overflow: hidden; }
+  .step { background: var(--pad-surface); padding: 20px 22px; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .step::before {
+    counter-increment: step;
+    content: counter(step, decimal-leading-zero);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pad-signal);
+    padding-top: 3px;
+  }
+  .step h3 { margin: 0 0 5px; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .step p { margin: 0; font-size: 15.5px; color: var(--pad-muted); }
+
+  /* ---- math box ---- */
+
+  .math {
+    background: var(--pad-ink);
+    color: #e9e7e2;
+    border-radius: 4px;
+    padding: 24px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    overflow-x: auto;
+  }
+  .math .row { display: flex; justify-content: space-between; gap: 24px; padding: 7px 0; border-bottom: 1px dashed rgba(233, 231, 226, 0.16); white-space: nowrap; }
+  .math .row:last-child { border-bottom: 0; }
+  .math .row.total { color: var(--pad-signal); font-weight: 700; padding-top: 14px; }
+  .math .k { color: rgba(233, 231, 226, 0.66); }
+
+  /* ---- kill criteria ---- */
+
+  .checks { display: grid; gap: 10px; }
+  .check {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    background: var(--pad-surface);
+    border: 1px solid var(--pad-line);
+    border-radius: 4px;
+    padding: 15px 18px;
+    font-size: 15.5px;
+  }
+  .check .mark { font-family: "JetBrains Mono", monospace; font-weight: 700; color: var(--pad-signal); line-height: 1.5; }
+
+  /* ---- sources ---- */
+
+  .sources { font-size: 14.5px; color: var(--pad-muted); }
+  .sources ol { padding-left: 22px; margin: 0; }
+  .sources li { margin-bottom: 7px; }
+
+  footer {
+    margin-top: 70px;
+    padding-top: 22px;
+    border-top: 1px solid var(--pad-line);
+    font-size: 13.5px;
+    color: var(--pad-faint);
+    font-family: Archivo, sans-serif;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .bar i { animation: fill 900ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: left; }
+    @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  }
+</style>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="eyebrow">
+      <span>Market Validation</span>
+      <span>August 2026</span>
+      <span>Consumer audio &middot; Creator economy</span>
+    </div>
+    <h1>Sounds as a <em>commodity</em></h1>
+    <p class="standfirst">
+      An auto-clipping soundboard that mines streamers for the next &ldquo;that was easy&rdquo; button.
+      The demand is real and measurable. The supply chain is the problem.
+    </p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="verdict">
+    <div class="score-block">
+      <span class="label">Composite</span>
+      <div class="score-num">4.5<small>&thinsp;/10</small></div>
+      <span class="label" style="color: var(--pad-warn);">Reframe before building</span>
+    </div>
+    <div>
+      <p class="verdict-call">The soundboard is a real product. The automated clipping engine is a lawsuit with a roadmap.</p>
+      <p>
+        Consumer appetite for meme audio is proven at scale and cheaply verifiable: one free web soundboard pulls
+        millions of monthly visits, a single ad-supported iOS soundboard has passed 5M installs, and Voicemod
+        built a 72M-user business on top of voice effects plus a sound library. That is not a market you have to create.
+      </p>
+      <p>
+        What you cannot do is the part you described as the moat. Twitch&rsquo;s developer agreement forbids
+        re-syndicating its content and forbids storing it beyond a 24-hour cache without written authorization,
+        and a clip of a streamer&rsquo;s voice is exactly the &ldquo;readily identifiable&rdquo; sound that
+        2024&ndash;2026 state publicity statutes now attach liability to, including for the party that distributes it.
+        An agent that harvests clips at scale industrializes that exposure.
+      </p>
+      <p>
+        The version worth building inverts the flow: creators upload their own sounds, you rank and distribute them,
+        and the engagement-grading agent runs on <em>your</em> library rather than on scraped platform content.
+      </p>
+    </div>
+  </div>
+
+  <section>
+    <span class="kicker">Scorecard</span>
+    <h2>Six dimensions, graded</h2>
+    <p class="dek">Each score is 0&ndash;10, weighted equally. Two of them are what drag the composite under 5.</p>
+    <div class="meters">
+      <div class="meter lv-good">
+        <div class="meter-head"><span class="meter-name">Demand for the sounds</span><span class="meter-val">8</span></div>
+        <div class="bar"><i style="width: 80%"></i></div>
+        <small>Millions of monthly visits to free soundboard sites; 5M+ installs on a single ad-supported meme soundboard.</small>
+      </div>
+      <div class="meter lv-bad">
+        <div class="meter-head"><span class="meter-name">Willingness to pay</span><span class="meter-val">3</span></div>
+        <div class="bar"><i style="width: 30%"></i></div>
+        <small>Category norm is free and ad-supported. Users treat sounds as they treated GIFs: worth zero at the point of use.</small>
+      </div>
+      <div class="meter lv-warn">
+        <div class="meter-head"><span class="meter-name">Distribution wedge</span><span class="meter-val">5</span></div>
+        <div class="bar"><i style="width: 50%"></i></div>
+        <small>Phone-first is the weak position. Discord, Twitch overlays and desktop capture are where sounds are actually fired.</small>
+      </div>
+      <div class="meter lv-bad">
+        <div class="meter-head"><span class="meter-name">Defensibility</span><span class="meter-val">3</span></div>
+        <div class="bar"><i style="width: 30%"></i></div>
+        <small>An audio file is trivially copied. A ranked list is not a moat unless it is tied to rights or to a network.</small>
+      </div>
+      <div class="meter lv-bad">
+        <div class="meter-head"><span class="meter-name">Rights clearance</span><span class="meter-val">2</span></div>
+        <div class="bar"><i style="width: 20%"></i></div>
+        <small>Platform ToS, background music inside clips, and voice/publicity rights all bite at once. This is the binding constraint.</small>
+      </div>
+      <div class="meter lv-warn">
+        <div class="meter-head"><span class="meter-name">Timing</span><span class="meter-val">6</span></div>
+        <div class="bar"><i style="width: 60%"></i></div>
+        <small>Clipping is a mainstream paid channel in 2026 and agentic pipelines are cheap. But Discord already shipped native soundboards.</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="col">
+    <span class="kicker">The premise</span>
+    <h2>What you are actually claiming</h2>
+    <p>
+      Stripped down, the pitch has three separable claims, and they are worth separating because they fail independently:
+    </p>
+    <ul>
+      <li><strong>Sounds are an under-served content commodity</strong> &mdash; a Giphy for audio. Broadly true, and repeatedly attempted.</li>
+      <li><strong>An agent can manufacture that commodity by clipping streamers and grading clips on engagement metrics.</strong> Technically easy, legally the weakest link in the chain.</li>
+      <li><strong>The phone is the right surface to consume it on.</strong> This is the claim I would push back on hardest, and it is the cheapest one to test.</li>
+    </ul>
+    <div class="callout">
+      <span class="label">The Giphy precedent</span>
+      <p>
+        Meta bought Giphy for $400M and sold it to Shutterstock for $53M three years later &mdash; a 13% recovery on the
+        canonical &ldquo;we own the meme format&rdquo; asset, with 1.7 billion daily users at the time of sale. Being the
+        library everyone uses did not translate into a business. Any &ldquo;Giphy for sounds&rdquo; framing has to answer
+        why the ending is different, and the honest answer is usually: because the sounds are tied to people who get paid.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">Competitive map</span>
+    <h2>Who already occupies this</h2>
+    <p class="dek">
+      The field is not empty. It is crowded at the free end, thin at the paid end, and the largest incumbent is a
+      platform that gave the feature away.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Player</th><th>Shape</th><th>Scale signal</th><th>Money</th><th>What it leaves open</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="name">Myinstants</td>
+            <td>Free web button board</td>
+            <td class="num">~3M&ndash;17M monthly visits (est. range)</td>
+            <td>Display ads</td>
+            <td>No mobile-native experience, no creator relationship, no curation</td>
+          </tr>
+          <tr>
+            <td class="name">Discord</td>
+            <td>Native in-app soundboard</td>
+            <td class="num">~2.5M servers (2025)</td>
+            <td>Boost tiers</td>
+            <td>Custom slots are gated to boosted servers; discovery is nonexistent</td>
+          </tr>
+          <tr>
+            <td class="name">Voicemod</td>
+            <td>Voice changer + 800k-sound library</td>
+            <td class="num">72M users</td>
+            <td class="num">~$12M ARR est.; $22.5M raised</td>
+            <td>Desktop-anchored, gamer-framed, weak mobile story</td>
+          </tr>
+          <tr>
+            <td class="name">Blerp</td>
+            <td>Soundbite search across chat/stream</td>
+            <td class="num">Discord bot: 100k users in 3 weeks</td>
+            <td class="num">~$1M+ raised (incl. Amazon)</td>
+            <td>Never escaped niche scale &mdash; the cautionary comp for this exact idea</td>
+          </tr>
+          <tr>
+            <td class="name">Sound Alerts</td>
+            <td>Twitch Bits-gated sound triggers</td>
+            <td class="num">Widely deployed on Twitch</td>
+            <td>Bits (streamer keeps 80% of 1&cent;/Bit)</td>
+            <td>Proves people pay to <em>fire</em> a sound at someone, not to own one</td>
+          </tr>
+          <tr>
+            <td class="name">OpusClip</td>
+            <td>Agentic clipping of long video</td>
+            <td class="num">10M users, 172M clips</td>
+            <td class="num">~$20M ARR, $215M valuation</td>
+            <td>Sells clipping to the rights-holder. Note who its customer is.</td>
+          </tr>
+          <tr>
+            <td class="name">Meme soundboard apps</td>
+            <td>Ad-supported mobile boards</td>
+            <td class="num">5M+ and 1M+ installs (two leaders)</td>
+            <td>Ads only</td>
+            <td>Static libraries, no freshness loop, no personalization</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      Traffic and revenue figures are third-party estimates (Similarweb/HypeStat, Latka, Apptopia, Crunchbase) and should be
+      treated as order-of-magnitude, not audited. Full source list at the end.
+    </p>
+    <div class="callout good">
+      <span class="label">The one genuinely open gap</span>
+      <p>
+        Nobody owns <strong>freshness</strong>. Every existing library is a static back catalogue that trends toward
+        2019 memes. A pipeline that surfaces the sound that broke out <em>this week</em>, ranked by real engagement,
+        is a defensible product promise &mdash; it just has to be fed by licensed or user-submitted supply, not scraping.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">Binding constraints</span>
+    <h2>Why the clipping agent is the risk, not the feature</h2>
+    <p class="dek">Ranked by how likely each is to end the company rather than inconvenience it.</p>
+    <div class="risks">
+      <div class="risk">
+        <span class="sev sev-kill">Kill risk</span>
+        <div>
+          <h3>Platform terms forbid the core loop</h3>
+          <p>
+            Twitch&rsquo;s Developer Services Agreement prohibits re-syndication and redistribution of materials obtained
+            through its APIs, and bars storing Twitch content beyond a 24-hour cache without written authorization.
+            Your product is, definitionally, a permanent redistributed store of that content.
+          </p>
+          <p>
+            Consequence is not a fine &mdash; it is API key revocation, then app-store takedown requests, at whatever
+            moment you become visible enough to notice. Growth is the trigger.
+          </p>
+        </div>
+      </div>
+      <div class="risk">
+        <span class="sev sev-kill">Kill risk</span>
+        <div>
+          <h3>A voice is a protected asset now</h3>
+          <p>
+            Tennessee&rsquo;s ELVIS Act defines &ldquo;voice&rdquo; as sound readily identifiable and attributable to a
+            particular individual, and creates liability for parties who distribute or make such material publicly
+            available knowing the use was unauthorized. California, New York, Texas and Illinois have moved in the same
+            direction, several with private rights of action.
+          </p>
+          <p>
+            A soundboard of identifiable streamers, monetized, is close to the textbook fact pattern. Fame is not consent,
+            and the streamer whose catchphrase carries your install growth is exactly the person with counsel.
+          </p>
+        </div>
+      </div>
+      <div class="risk">
+        <span class="sev sev-high">High</span>
+        <div>
+          <h3>Music sits inside the clips</h3>
+          <p>
+            Streamer audio is routinely mixed over licensed music. An automated pipeline cannot tell a catchphrase from a
+            catchphrase-over-a-hook, so a meaningful share of your library inherits a second, independent rights holder
+            &mdash; the one class of claimant that already runs automated enforcement at internet scale.
+          </p>
+        </div>
+      </div>
+      <div class="risk">
+        <span class="sev sev-high">High</span>
+        <div>
+          <h3>The phone is the wrong end of the microphone</h3>
+          <p>
+            iOS gives no third-party app system-wide audio routing, so a mobile soundboard cannot inject audio into a
+            Discord call, a TikTok recording or a FaceTime. It plays out of the speaker and hopes a mic picks it up.
+            That is a party trick with high retention decay, not a daily-use utility.
+          </p>
+          <p>
+            Every serious incumbent &mdash; Voicemod, Blerp, Discord itself &mdash; lives where a virtual audio device is
+            possible. That is desktop.
+          </p>
+        </div>
+      </div>
+      <div class="risk">
+        <span class="sev sev-med">Manageable</span>
+        <div>
+          <h3>Free is the anchor price</h3>
+          <p>
+            Users have never paid for meme audio and the leading mobile apps monetize on ads alone. Subscription revenue
+            in this category historically comes from the <em>transformation</em> layer (voice effects, alerts, streaming
+            tools), not from access to the library. Price the tool, give away the sounds.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="col">
+    <span class="kicker">Unit economics</span>
+    <h2>What the ad-supported version pays you</h2>
+    <p>
+      Worth doing the arithmetic before committing, because it explains why this category produces 5M-install apps and
+      no notable outcomes. Illustrative model, US-weighted, deliberately generous on engagement:
+    </p>
+    <div class="math">
+      <div class="row"><span class="k">Monthly active users</span><span>500,000</span></div>
+      <div class="row"><span class="k">Sessions / MAU / month</span><span>6</span></div>
+      <div class="row"><span class="k">Interstitials per session</span><span>1.5</span></div>
+      <div class="row"><span class="k">Monthly impressions</span><span>4,500,000</span></div>
+      <div class="row"><span class="k">Blended eCPM</span><span>$6.00</span></div>
+      <div class="row"><span class="k">Gross monthly ad revenue</span><span>$27,000</span></div>
+      <div class="row"><span class="k">Less store + network share (~35%)</span><span>&minus;$9,450</span></div>
+      <div class="row total"><span>Net run-rate</span><span>~$210k / year</span></div>
+    </div>
+    <p style="margin-top: 18px;">
+      Half a million monthly actives is a genuinely successful consumer app, and it yields a lifestyle business with a
+      legal department it cannot afford. Ads alone do not justify the risk profile above. The model has to include either
+      creator-side subscriptions (as Voicemod does) or a transactional layer (as Sound Alerts does with Bits) for the
+      numbers to become interesting.
+    </p>
+  </section>
+
+  <section>
+    <span class="kicker">Recommended shape</span>
+    <h2>The version I would fund</h2>
+    <p class="dek">
+      Same insight &mdash; sounds are an under-exploited commodity, freshness is the gap &mdash; with the supply chain
+      turned around so the rights flow toward you instead of away.
+    </p>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h3>Make creators the suppliers, not the quarry</h3>
+          <p>
+            Streamers submit their own sounds and sign a distribution license on upload. You get clean rights, they get
+            reach and a revenue share. This single inversion neutralizes the two kill risks and turns your worst
+            adversary into your acquisition channel.
+          </p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Keep the agent, point it at your own catalogue</h3>
+          <p>
+            Engagement-graded ranking is still the product. Score plays, saves, shares and re-fires inside your network,
+            plus opt-in creator analytics. Ranking first-party usage is defensible and generates a data asset; ranking
+            scraped view counts is a scoreboard anyone can rebuild.
+          </p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Ship where the sound actually fires</h3>
+          <p>
+            Discord bot and desktop virtual-audio client first &mdash; the surfaces where a sound is heard by other
+            people. Blerp&rsquo;s bot hit 100k users in three weeks from a standing start, which is the fastest
+            documented distribution in this category. Mobile becomes the remote control and the discovery feed, not the player.
+          </p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Monetize the firing, not the file</h3>
+          <p>
+            Sound Alerts established that viewers pay to trigger a sound on someone else&rsquo;s stream, with the
+            streamer keeping the majority. Take a cut of paid triggers and sell creators a pro tier for their own board,
+            analytics and drops. Library access stays free forever &mdash; that is the growth engine, not the revenue line.
+          </p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Only then chase the &ldquo;that was easy&rdquo; moment</h3>
+          <p>
+            A single breakout physical-button-style sound is a marketing outcome, not a product strategy. It becomes
+            reachable once you have a licensed catalogue and a distribution surface &mdash; and at that point you can
+            legally put it on merchandise, which is where that analogy&rsquo;s money actually was.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="col">
+    <span class="kicker">Falsification</span>
+    <h2>Tests to run before writing the app</h2>
+    <p>Each of these is a week or less, and any one of them failing should stop the build.</p>
+    <div class="checks">
+      <div class="check"><span class="mark">01</span><div><strong>Creator supply.</strong> Cold-outreach 30 mid-tier streamers with a one-page license and a revenue share. If fewer than 5 will sign, the licensed model is dead and so is the scraped one.</div></div>
+      <div class="check"><span class="mark">02</span><div><strong>Firing demand.</strong> Ship a Discord bot with 50 hand-cleared sounds. Target 1,000 servers in 30 days on zero paid spend. Blerp&rsquo;s trajectory says this is achievable if the product is right.</div></div>
+      <div class="check"><span class="mark">03</span><div><strong>Freshness value.</strong> Measure whether sounds added in the last 14 days out-play the back catalogue per-slot. If new sounds don&rsquo;t win, your entire agentic pipeline is a cost centre.</div></div>
+      <div class="check"><span class="mark">04</span><div><strong>Payment.</strong> Put a paid-trigger flow in front of 10 partner streams. Anything under ~$0.50/viewer/month means you are building an ad business, and the economics above apply.</div></div>
+      <div class="check"><span class="mark">05</span><div><strong>Counsel sanity check.</strong> One hour with a media/IP lawyer on the licensed-upload model in your target states. Cheapest risk reduction available and it should precede any code.</div></div>
+    </div>
+  </section>
+
+  <section class="col">
+    <span class="kicker">Bottom line</span>
+    <h2>Verdict</h2>
+    <div class="callout bad">
+      <span class="label">As described</span>
+      <p>
+        No. An agent that scrapes streamer clips, stores them permanently and monetizes identifiable voices runs
+        head-on into platform terms, publicity statutes and embedded music rights, to build a free-anchored
+        ad business worth a few hundred thousand a year at real scale.
+      </p>
+    </div>
+    <div class="callout good">
+      <span class="label">Reframed</span>
+      <p>
+        Yes, conditionally. A creator-licensed sound network &mdash; engagement-ranked, distributed where sounds are
+        actually played, monetized on triggers and creator tooling &mdash; keeps every part of your insight that
+        matters and discards the part that would have ended it. The freshness gap is real and currently unowned.
+      </p>
+    </div>
+    <p>
+      The instinct behind this idea is good: audio is the one meme format nobody has successfully productized, and
+      engagement-graded curation is a legitimately better ranking mechanism than the hand-maintained lists the
+      incumbents run on. Keep the instinct. Change who hands you the sounds.
+    </p>
+  </section>
+
+  <section class="col sources">
+    <span class="kicker">References</span>
+    <h2 style="color: var(--pad-text);">Sources</h2>
+    <ol>
+      <li><a href="https://legal.twitch.com/legal/developer-agreement/">Twitch Developer Services Agreement</a> &mdash; redistribution and content-storage restrictions.</li>
+      <li><a href="https://www.proskauer.com/blog/the-king-is-back-in-the-digital-era-the-elvis-act-generative-ai-and-right-of-publicity">Proskauer: The ELVIS Act, Generative AI and Right of Publicity</a>; <a href="https://holonlaw.com/entertainment-law/synthetic-media-voice-cloning-and-the-new-right-of-publicity-risk-map-for-2026/">Holon Law: voice-cloning risk map for 2026</a>.</li>
+      <li><a href="https://www.similarweb.com/website/myinstants.com/">Similarweb: myinstants.com</a>; <a href="https://hypestat.com/info/myinstants.com">HypeStat: myinstants.com</a>.</li>
+      <li><a href="https://apps.apple.com/us/app/meme-soundboard-2016-2026/id1347840679">Meme Soundboard 2016&ndash;2026 (App Store)</a>; <a href="https://play.google.com/store/apps/details?id=me.eladga.memesoundboard&hl=en_US">Meme Soundboard Ultimate (Google Play)</a>.</li>
+      <li><a href="https://getlatka.com/companies/voicemod.net">Latka: Voicemod revenue</a>; <a href="https://www.crunchbase.com/organization/voicemod-s-l">Crunchbase: Voicemod</a>.</li>
+      <li><a href="https://www.utahbusiness.com/archive/2021/03/24/blerp-raises-funds-from-amazon/">Utah Business: Blerp raises from Amazon</a>; <a href="https://en.wikipedia.org/wiki/Blerp">Blerp overview</a>.</li>
+      <li><a href="https://support.soundalerts.com/en/article/earning-revenue-with-sound-alerts">Sound Alerts: earning revenue (Bits split)</a>.</li>
+      <li><a href="https://sacra.com/c/opusclip/">Sacra: OpusClip revenue and valuation</a>; <a href="https://getlatka.com/companies/opus.pro">Latka: OpusClip</a>.</li>
+      <li><a href="https://techcrunch.com/2023/05/23/meta-sells-giphy-to-shutterstock-for-53m-after-uk-divestment-order/">TechCrunch: Meta sells Giphy to Shutterstock for $53M</a>.</li>
+      <li><a href="https://peakbot.pro/blog/how-to-set-up-discord-soundboard-2026">Discord Soundboard adoption (2.5M servers)</a>.</li>
+      <li><a href="https://reach.cat/blog/content-clipping-industry-state-2026/">State of the content-clipping industry, 2026</a>; <a href="https://theinfluencermarketingfactory.com/creator-economy/">Creator economy market size</a>.</li>
+    </ol>
+    <footer>
+      Prepared as an independent validation review. Third-party revenue and traffic figures are estimates.
+      Nothing here is legal advice &mdash; the rights questions above warrant real counsel.
+    </footer>
+  </section>
+
+</div>

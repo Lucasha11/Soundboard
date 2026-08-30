@@ -1,0 +1,3 @@
+module GovernanceKit {
+    header "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/GovernanceKit.build/include/GovernanceKit-Swift.h"
+}

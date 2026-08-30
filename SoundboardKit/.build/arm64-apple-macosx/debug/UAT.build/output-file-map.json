@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/UAT.build/master.swiftdeps"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/UAT/main.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/UAT.build/main.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/UAT.build/main.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/UAT.build/main~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/UAT.build/main.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/UAT.build/main.dia"
+  }
+}

@@ -1,0 +1,15 @@
+# Every third party or client SDK that receives any data. DG-VEND-01.
+# Adding an SDK counts as adding a vendor. No entry, no data.
+version: 1.0
+vendors: []
+# Template - copy, complete, and get governance approval before merging:
+#  - id: V-EXAMPLE
+#    name: Example Inc
+#    purpose_ids: [P-SERVE]
+#    data_classes: [C1]
+#    dpa_status: executed        # executed | pending | none
+#    subprocessors_reviewed: true
+#    hosting_region: us
+#    model_provider: false       # true requires no-training term, DG-VEND-05
+#    approved_by: <name>
+#    approved_on: <YYYY-MM-DD>

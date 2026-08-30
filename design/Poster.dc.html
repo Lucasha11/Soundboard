@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; width: 1280px; height: 900px; background: #0b0b0b; color: #f2f0ed;
+      font-family: Archivo, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #f2f0ed; } a:hover { color: #b9b4ac; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+    .head { display: flex; align-items: baseline; gap: 28px; padding: 34px 40px 26px; }
+    .word { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+    .nav { display: flex; gap: 22px; font-size: 13px; color: #6e6a65; }
+    .nav span.on { color: #f2f0ed; }
+    .right { margin-left: auto; display: flex; align-items: baseline; gap: 24px;
+      font-size: 12px; color: #6e6a65; }
+    .right .q { color: #46433f; border-bottom: 1px solid #24221f; padding-bottom: 3px;
+      min-width: 190px; }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
+      background: #1c1a18; border-top: 1px solid #1c1a18; }
+    .t { position: relative; aspect-ratio: 1 / 1; background: #0b0b0b; overflow: hidden; }
+    .t svg.ph { width: 100%; height: 100%; display: block; }
+    .t::after { content: ""; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.24) 34%, rgba(0,0,0,0) 62%); }
+    .t.locked svg.ph { filter: grayscale(1) brightness(0.5); }
+    .lab { position: absolute; left: 12px; right: 12px; bottom: 11px; z-index: 2; }
+    .fn { font-size: 11px; letter-spacing: 0.01em;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .t.locked .fn { color: #9b968f; }
+    .by { margin-top: 3px; font-size: 10px; color: #948e86; }
+    .lk { position: absolute; top: 11px; right: 11px; z-index: 2; color: #f2f0ed; opacity: 0.9; }
+    .fr { position: absolute; top: 11px; right: 11px; z-index: 2; width: 5px; height: 5px;
+      border-radius: 50%; background: #f2f0ed; }
+    .gif { position: absolute; top: 11px; left: 11px; z-index: 2; font-size: 8px;
+      font-weight: 500; letter-spacing: 0.14em; color: #f2f0ed; opacity: 0.75; }
+    .t.playing { outline: 1px solid #f2f0ed; outline-offset: -1px; }
+    .prog { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; height: 2px;
+      background: rgba(242,240,237,0.22); }
+    .prog i { display: block; height: 2px; width: 41%; background: #f2f0ed; }
+    .now { position: absolute; left: 12px; top: 11px; z-index: 3; display: flex;
+      align-items: center; gap: 5px; font-size: 9px; letter-spacing: 0.14em; }
+    .now i { width: 5px; height: 5px; border-radius: 50%; background: #f2f0ed; display: block; }
+  </style>
+</helmet>
+<div>
+  <div class="head">
+    <div class="word">Soundboard</div>
+    <div class="nav"><span class="on">Library</span><span>Creators</span><span>Collections</span><span>Upload</span></div>
+    <div class="right"><span class="q mono">search</span><span>All</span><span>Free</span><span>Paid</span></div>
+  </div>
+
+  <div class="grid">
+    <div class="t playing">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#6d5bd0"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <div class="now mono"><i></i>PLAYING</div>
+      <div class="lab"><div class="fn mono">kekw-laugh.mp3</div><div class="by">@vexlord &middot; 0:02</div></div>
+      <div class="prog"><i></i></div>
+    </div>
+    <div class="t locked">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#d1495b"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="gif mono">GIF</span>
+      <span class="lk"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+      <div class="lab"><div class="fn mono">clutch-scream.wav</div><div class="by">@nova_k &middot; 0:03</div></div>
+    </div>
+    <div class="t">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#2f6f5e"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="fr"></span>
+      <div class="lab"><div class="fn mono">bruh-moment.mp3</div><div class="by">@grimjaw &middot; 0:01</div></div>
+    </div>
+    <div class="t locked">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#3aa8a0"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="lk"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+      <div class="lab"><div class="fn mono">airhorn-hype.wav</div><div class="by">@minttea &middot; 0:04</div></div>
+    </div>
+    <div class="t">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#c9772a"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="gif mono">GIF</span>
+      <span class="fr"></span>
+      <div class="lab"><div class="fn mono">gg-go-next.mp3</div><div class="by">@halcyon &middot; 0:02</div></div>
+    </div>
+
+    <div class="t locked">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#7a4b8f"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="lk"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+      <div class="lab"><div class="fn mono">copium-sigh.mp3</div><div class="by">@pixelpriest &middot; 0:03</div></div>
+    </div>
+    <div class="t">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#9b6a2f"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="fr"></span>
+      <div class="lab"><div class="fn mono">rat-noise.wav</div><div class="by">@bricktop &middot; 0:01</div></div>
+    </div>
+    <div class="t locked">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#34495e"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="gif mono">GIF</span>
+      <span class="lk"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+      <div class="lab"><div class="fn mono">oof-fall-damage.mp3</div><div class="by">@nyx &middot; 0:02</div></div>
+    </div>
+    <div class="t">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#6d5bd0"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="fr"></span>
+      <div class="lab"><div class="fn mono">wow-nice.mp3</div><div class="by">@vexlord &middot; 0:02</div></div>
+    </div>
+    <div class="t locked">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#3aa8a0"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="lk"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+      <div class="lab"><div class="fn mono">sad-violin.wav</div><div class="by">@minttea &middot; 0:05</div></div>
+    </div>
+
+    <div class="t">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#d1495b"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="fr"></span>
+      <div class="lab"><div class="fn mono">hell-yeah.mp3</div><div class="by">@nova_k &middot; 0:01</div></div>
+    </div>
+    <div class="t locked">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#2f6f5e"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="gif mono">GIF</span>
+      <span class="lk"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+      <div class="lab"><div class="fn mono">ded-chat.mp3</div><div class="by">@grimjaw &middot; 0:02</div></div>
+    </div>
+    <div class="t">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#c9772a"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="fr"></span>
+      <div class="lab"><div class="fn mono">boing.wav</div><div class="by">@halcyon &middot; 0:01</div></div>
+    </div>
+    <div class="t locked">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#34495e"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="lk"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+      <div class="lab"><div class="fn mono">sheesh.mp3</div><div class="by">@nyx &middot; 0:02</div></div>
+    </div>
+    <div class="t">
+      <svg class="ph" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#9b6a2f"></rect><circle cx="50" cy="40" r="17" fill="#000" opacity="0.3"></circle><path d="M16 100c0-20 15-30 34-30s34 10 34 30z" fill="#000" opacity="0.3"></path></svg>
+      <span class="gif mono">GIF</span>
+      <span class="fr"></span>
+      <div class="lab"><div class="fn mono">no-way.wav</div><div class="by">@bricktop &middot; 0:01</div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

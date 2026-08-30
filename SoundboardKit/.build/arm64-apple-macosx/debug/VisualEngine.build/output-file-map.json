@@ -1,0 +1,33 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/master.swiftdeps"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/VisualEngine/AnimationSession.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/AnimationSession.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/AnimationSession.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/AnimationSession~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/AnimationSession.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/AnimationSession.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/VisualEngine/DecodeSessionPool.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/DecodeSessionPool.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/DecodeSessionPool.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/DecodeSessionPool~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/DecodeSessionPool.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/DecodeSessionPool.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/VisualEngine/PosterStore.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/PosterStore.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/PosterStore.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/PosterStore~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/PosterStore.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/PosterStore.dia"
+  },
+  "/Users/lucasha/Soundboard/SoundboardKit/Sources/VisualEngine/VisualEngine.swift": {
+    "dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/VisualEngine.d",
+    "object": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/VisualEngine.swift.o",
+    "swiftmodule": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/VisualEngine~partial.swiftmodule",
+    "swift-dependencies": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/VisualEngine.swiftdeps",
+    "diagnostics": "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/VisualEngine.build/VisualEngine.dia"
+  }
+}
