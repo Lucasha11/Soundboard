@@ -1,3 +1,0 @@
-module PlaybackEngine {
-    header "/Users/lucasha/Soundboard/SoundboardKit/.build/arm64-apple-macosx/debug/PlaybackEngine.build/include/PlaybackEngine-Swift.h"
-}
