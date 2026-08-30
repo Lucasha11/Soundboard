@@ -185,6 +185,26 @@ public final class BlobStore {
         }
     }
 
+    /// Sets refcounts to exactly the references given, and deletes any blob
+    /// nothing references.
+    ///
+    /// The catalogue that owns these blobs is the authority on what is
+    /// referenced, not this index. Retaining again on every load instead of
+    /// reconciling makes a blob's count climb by one per launch, and a delete
+    /// then decrements a count that never reaches zero, so the bytes are never
+    /// freed. Reconciling also heals drift left by a crash mid-import.
+    ///
+    /// - Parameter digests: every reference held, including duplicates when
+    ///   two records point at the same blob.
+    public func reconcileReferences(_ digests: [String]) {
+        queue.sync {
+            var counts: [String: Int] = [:]
+            for digest in digests { counts[digest, default: 0] += 1 }
+            refcounts = counts
+            persistIndex()
+        }
+    }
+
     public func referenceCount(_ ref: BlobRef) -> Int {
         queue.sync { refcounts[ref.digest] ?? 0 }
     }

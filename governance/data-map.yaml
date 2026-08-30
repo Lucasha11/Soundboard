@@ -50,6 +50,39 @@ fields:
     encrypted_at_rest: false
     exportable: true
     deletable: true
+  - store: sound
+    field: created_at
+    class: C2
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: true
+    exportable: true
+    deletable: true
+  # Blob references. The payloads are C3 and C4; a content digest is neither.
+  - store: sound
+    field: audio_blob_id
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: false
+    exportable: true
+    deletable: true
+  - store: sound
+    field: animation_blob_id
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: false
+    exportable: true
+    deletable: true
+  - store: sound
+    field: poster_blob_id
+    class: C1
+    purpose_ids: [P-SERVE]
+    retention_ref: device_local_user_content
+    encrypted_at_rest: false
+    exportable: true
+    deletable: true
   # Clip audio can carry a voice, which Section 2 classes as C3. Classified by
   # what the field can hold, not by what a given import happens to contain.
   - store: media_blob
