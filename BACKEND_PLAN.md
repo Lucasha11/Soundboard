@@ -1,5 +1,13 @@
 # BACKEND_PLAN.md
 
+> **Not yet realigned to DATA_GOVERNANCE.md v2.0.** This plan is written to the
+> v1.0 pre-clearance model. Where a step here enforces a control that v2.0
+> Section 0.1 relaxed or removed (creator licensing and verification, quarantine
+> as default state, the music-detection gate, the ranking feature allowlist and
+> human publish step, Restricted Mode, the five questions), the governance
+> document wins and the step is optional. The takedown and moderation ordering
+> in v2.0 Section 12 is not optional. Ask before treating this file as current.
+
 Backend build plan for the **Soundboard iOS app** (gif + audio tiles, custom imports).
 Subordinate to `DATA_GOVERNANCE.md` and to the phase ordering in `PLAN.md`. Where this
 document and either of those disagree, they win.

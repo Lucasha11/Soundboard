@@ -1,5 +1,13 @@
 # PLAN.md
 
+> **Not yet realigned to DATA_GOVERNANCE.md v2.0.** This plan is written to the
+> v1.0 pre-clearance model. Where a step here enforces a control that v2.0
+> Section 0.1 relaxed or removed (creator licensing and verification, quarantine
+> as default state, the music-detection gate, the ranking feature allowlist and
+> human publish step, Restricted Mode, the five questions), the governance
+> document wins and the step is optional. The takedown and moderation ordering
+> in v2.0 Section 12 is not optional. Ask before treating this file as current.
+
 Build order for **Soundboard**. Binding alongside `DATA_GOVERNANCE.md`.
 
 **Rule for every phase:** do not start a phase until the previous phase's exit criteria all pass. `python3 governance/check.py` must be green at the end of every step. A step that cannot meet its control fails closed - stop and escalate, do not proceed with a TODO (`DG-AGENT-04`).

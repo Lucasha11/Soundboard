@@ -22,10 +22,12 @@ public struct ClipArtifacts: Sendable {
 ///
 /// Source scope, deliberately narrow: a file the user selects from their own
 /// Photos or Files. There is no URL ingestion path, no platform API client, and
-/// no share-sheet link handler, because retrieving media from TikTok, YouTube,
-/// Twitch, Instagram or Kick is prohibited outright (`DG-STOP-01/P1`), as is
-/// persisting anything derived from it beyond a 24-hour cache
-/// (`DG-STOP-01/P2`). A tile is permanent, so no cache exemption applies.
+/// no share-sheet link handler. At v2.0 `DG-STOP-01/P1` bars only automated or
+/// bulk retrieval that breaches a platform's terms, and user-initiated import
+/// of a file the user already owns is explicitly permitted, so this is the
+/// permitted route rather than the only legal one. Adding a platform client
+/// later would need an official API within its terms, plus the `P2` cache
+/// limit; a tile is permanent, so no cache exemption would apply to it.
 /// See BACKEND_PLAN.md Section 1.
 public struct ClipExtractor {
     private let caps: ImportCaps

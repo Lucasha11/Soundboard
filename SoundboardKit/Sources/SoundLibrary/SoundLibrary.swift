@@ -62,9 +62,9 @@ public final class SoundLibrary {
     /// Imports one clip from a video the user already owns on this device.
     ///
     /// Source scope is deliberately narrow: a local file the user selected.
-    /// There is no URL ingestion path anywhere in this type, because retrieving
-    /// media from a platform is prohibited outright (`DG-STOP-01/P1`) as is
-    /// persisting anything derived from it (`P2`).
+    /// There is no URL ingestion path anywhere in this type. User-initiated
+    /// import is the route `DG-STOP-01/P1` permits at v2.0; automated or bulk
+    /// platform retrieval in breach of a platform's terms stays prohibited.
     @discardableResult
     public func importClip(
         from sourceURL: URL,

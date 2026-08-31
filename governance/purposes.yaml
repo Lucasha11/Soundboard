@@ -1,6 +1,7 @@
 # Registered processing purposes. DG-PURP-01.
 # A purpose not listed here may not be implemented.
-version: 1.0
+# v2.0 adds P-ADS and P-ATTRIB. See DATA_GOVERNANCE.md Section 5.
+version: 2.0
 purposes:
   - id: P-SERVE
     description: Deliver requested audio playback to a user
@@ -8,6 +9,27 @@ purposes:
     consent_required: false
     data_classes: [C1, C2, C4]
     retention_ref: session_and_device_identifiers
+
+  - id: P-ADS
+    description: Serve advertising, including personalised advertising
+    # ATT gates the tracking identifier (DG-USER-04) and the CCPA sale/share
+    # opt-out must be reachable from settings (DG-USER-06). Neither is a
+    # consent flag in this manifest; both are enforced in the client.
+    lawful_basis: legitimate_interest
+    consent_required: false
+    opt_out: true
+    att_gated: true
+    data_classes: [C1, C2]
+    retention_ref: advertising_identifier
+
+  - id: P-ATTRIB
+    description: Install attribution and campaign measurement
+    lawful_basis: legitimate_interest
+    consent_required: false
+    opt_out: true
+    att_gated: true
+    data_classes: [C1, C2]
+    retention_ref: advertising_identifier
 
   - id: P-RANK
     description: Rank sounds by first-party engagement signals
@@ -32,7 +54,7 @@ purposes:
     retention_ref: moderation_and_takedown_record
 
   - id: P-PAYMENT
-    description: Process paid triggers and creator payouts
+    description: Process in-app purchases and subscriptions
     lawful_basis: contract
     consent_required: false
     data_classes: [C3]
@@ -40,9 +62,11 @@ purposes:
 
   - id: P-PRODUCT-ANALYTICS
     description: Product improvement telemetry
-    lawful_basis: consent
-    consent_required: true
-    data_classes: [C2]
+    # v2.0: legitimate interest with a settings opt-out, not opt-in consent.
+    lawful_basis: legitimate_interest
+    consent_required: false
+    opt_out: true
+    data_classes: [C1]
     retention_ref: raw_engagement_events
 
   - id: P-MARKETING
