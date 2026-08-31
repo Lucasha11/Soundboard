@@ -1,20 +1,22 @@
 # Every persisted field and analytics event. DG-CLASS-03, DG-RET-01, DG-LOG-05.
 # A field absent from this file must not be persisted. An event absent from this
-# file is dropped by the pipeline. Untagged fields are treated as C3.
-version: 1.0
+# file is dropped by the pipeline. Untagged fields are treated as C2 (DG-CLASS-02).
+version: 2.0
 
+# v2.0 periods. See DATA_GOVERNANCE.md Section 7.
 retention_policies:
-  raw_engagement_events:          { days: 90,    basis: rolling }
-  aggregated_engagement_counters: { days: 730,   basis: rolling }
+  raw_engagement_events:          { days: 760,   basis: rolling }
+  aggregated_engagement_counters: { days: null,  basis: indefinite_non_personal }
   account_record:                 { days: 30,    basis: after_account_deletion }
-  session_and_device_identifiers: { days: 395,   basis: rolling }
-  ip_address:                     { days: 7,     basis: rolling }
+  session_and_device_identifiers: { days: 760,   basis: rolling }
+  ip_address:                     { days: 30,    basis: rolling }
+  advertising_identifier:         { days: 760,   basis: rolling_or_att_withdrawal }
   payment_transaction_record:     { days: 2555,  basis: legal_retention }
-  audio_asset:                    { days: 0,     basis: on_revocation_or_delete }
-  license_and_provenance_chain:   { days: 2555,  basis: after_asset_deletion }
-  moderation_and_takedown_record: { days: 1095,  basis: legal_defence }
+  audio_asset:                    { days: 0,     basis: on_removal_or_claim }
+  submission_record:              { days: 1095,  basis: after_asset_removal }
+  moderation_and_takedown_record: { days: 1095,  basis: safe_harbor_record }
   ranking_audit_record:           { days: 730,   basis: rolling }
-  application_logs:               { days: 30,    basis: rolling }
+  application_logs:               { days: 90,    basis: rolling }
   # On-device personal lane. Media the user imported for their own board never
   # leaves the device, so retention is user-controlled rather than time-based.
   # P10 still requires a declared policy, and deletion is immediate and hard.
@@ -83,8 +85,9 @@ fields:
     encrypted_at_rest: false
     exportable: true
     deletable: true
-  # Clip audio can carry a voice, which Section 2 classes as C3. Classified by
-  # what the field can hold, not by what a given import happens to contain.
+  # v2.0 no longer classes a voice recording as C3, so C4 would be defensible
+  # here. Kept at C3 deliberately: the blob is encrypted and never leaves the
+  # device, so the stricter class costs nothing. See BACKEND_PLAN.md Section 1.
   - store: media_blob
     field: audio_payload
     class: C3

@@ -1,41 +1,50 @@
 # PLAN.md
 
-Build order for **Soundboard**. Binding alongside `DATA_GOVERNANCE.md`.
+Build order for **Soundboard**. Binding alongside `DATA_GOVERNANCE.md` v2.0.
 
-**Rule for every phase:** do not start a phase until the previous phase's exit criteria all pass. `python3 governance/check.py` must be green at the end of every step. A step that cannot meet its control fails closed - stop and escalate, do not proceed with a TODO (`DG-AGENT-04`).
+**Rule for every phase:** `python3 governance/check.py` is green at the end of every step. A step whose control cannot be met stops and escalates rather than shipping with a TODO (`DG-AGENT-04`).
 
-The ordering is chosen for efficiency in one specific sense: it puts every irreversible decision (rights, identity, classification, retention) before the code that would have to be rewritten if that decision changed. Nothing here is sequenced for ceremony.
+**What drives this ordering.** v1.0 sequenced everything behind rights clearance, because no audio could exist until a license record existed first. v2.0 dissolves that chain: three of the four content routes (bundled, user recording, user import) need no clearance at all, so the app moves to the front and the rights machinery moves to where it is actually load-bearing. One ordering constraint replaces the old one, and it is not negotiable:
+
+> The DMCA agent registration, the takedown channel, and the moderation gate must be live before the first community submission is served (`DG-TAKE-01`, `DG-TAKE-02`, `DG-RANK-07`).
+
+That is Phase 0 gating Phase 4, and nothing else. Under a reactive rights model the takedown path is the only thing standing between a bad clip and direct liability, so it is built before the feature that needs it, not alongside.
 
 **Legend:** `Gate` = what must be true to exit. `Rules` = governing rule IDs. `Artifacts` = what the step produces.
 
 ---
 
-## Phase 0 - Legal foundation (no application code)
+## Phase 0 - Legal foundation (blocks Phase 4, not the app)
 
-Nothing is built until the rights model exists on paper. Every downstream schema depends on it.
+Nothing here blocks the app shipping with bundled and user content. All of it blocks accepting a single community submission.
 
-**Step 0.1 - Draft the Creator Distribution License**
-Non-exclusive, worldwide, revocable-on-request license to host, transcode, distribute, and display the uploaded audio, plus an uploader warranty of rights and an indemnity. Include the speaker-identity representation and the revocation mechanism.
-`Rules` DG-ACQ-01, DG-ACQ-06 · `Artifacts` `legal/creator-license-v1.md`
-`Gate` Reviewed by outside counsel. Counsel confirms the license text supports the ingestion model as coded.
+**Step 0.1 - Submission terms and EULA**
+The uploader warranty is the whole rights model now. Terms state that the submitter holds the rights or does not need them, grant us a licence to host and distribute, and bind the submitter to the repeat-infringer policy. Accepted at submission time, version recorded.
+`Rules` DG-ACQ-02, P3 · `Artifacts` `legal/submission-terms-v1.md`
+`Gate` The accepted version string is written with every submission record. A submission cannot exist without one.
 
-**Step 0.2 - Confirm the acquisition model with counsel**
-One hour, scoped to: creator-licensed upload only, US launch, state right-of-publicity exposure, third-party-speaker rule (`DG-ACQ-05`), music-in-clip exposure, repeat-infringer policy.
-`Rules` DG-ACQ-05, DG-STOP-01/P3, DG-STOP-01/P5 · `Artifacts` `legal/counsel-memo-2026.md`
-`Gate` Written memo on file. Any counsel instruction that conflicts with `DATA_GOVERNANCE.md` triggers a Section 14 amendment before coding.
+**Step 0.2 - DMCA agent and takedown channel**
+Register a designated agent with the US Copyright Office. Stand up a public intake covering copyright, voice and likeness, and privacy claims, with a counter-notice path and a strike ledger.
+`Rules` DG-TAKE-01, DG-TAKE-02, DG-TAKE-03 · `Artifacts` agent registration, intake address, takedown runbook, repeat-infringer policy
+`Gate` Registration confirmed and public. Runbook names an owner and a 48-hour removal target. Safe harbor is unavailable without the registration, so this gate is binary.
 
-**Step 0.3 - Publish the privacy notice and takedown channel**
-Notice generated from `governance/purposes.yaml`, so it cannot drift from what the code does. Takedown intake live before any public asset exists.
-`Rules` DG-TAKE-01, DG-USER-05, DG-PURP-01 · `Artifacts` `legal/privacy-notice-v1.md`, takedown intake address and runbook
-`Gate` Both public and reachable. Runbook names an owner and a 24-hour response target.
+**Step 0.3 - Privacy notice and store disclosures**
+Notice generated from `governance/purposes.yaml` so it cannot drift from what the code does. Covers the ads and analytics purposes added at v2.0.
+`Rules` DG-USER-05, DG-PURP-01 · `Artifacts` `legal/privacy-notice-v2.md`
+`Gate` Public and reachable. Every purpose in `purposes.yaml` appears in it, and nothing appears in it that is not in `purposes.yaml`.
 
-**Phase 0 exit:** license, counsel memo, privacy notice, takedown channel. No code before this.
+**Step 0.4 - Counsel review of the reactive model**
+One scoped session, per `DATA_GOVERNANCE.md` Section 17: the safe harbor position, the selection standard for the bundled catalogue, and the residual right-of-publicity exposure on voice clips.
+`Rules` DG-TAKE-01, DG-TAKE-06, P3, P5 · `Artifacts` `legal/counsel-memo-2026.md`
+`Gate` Written memo on file before the bundled catalogue is finalised. Any counsel instruction conflicting with `DATA_GOVERNANCE.md` triggers a Section 14 amendment rather than a quiet deviation.
+
+**Phase 0 exit:** submission terms, registered DMCA agent, live takedown channel, privacy notice, counsel memo.
 
 ---
 
-## Phase 1 - Governance skeleton in code
+## Phase 1 - Governance skeleton in code (blocks anything that persists)
 
-Build the enforcement before the thing being enforced. This is the cheapest possible ordering: every later schema lands into a validated manifest instead of being retrofitted.
+Build the enforcement before the thing being enforced. Cheaper than retrofitting, and unchanged in principle from v1.0.
 
 **Step 1.1 - Wire the gate into CI**
 `governance/check.py` runs on every PR and push. Branch protection makes it required.
@@ -45,10 +54,10 @@ Build the enforcement before the thing being enforced. This is the cheapest poss
 **Step 1.2 - Classification-aware persistence layer**
 One data-access module. Every column declares its class at definition time and the module refuses to persist an unclassified field. Redaction filter installed at the logging library boundary, not the call site.
 `Rules` DG-CLASS-01, DG-CLASS-02, DG-LOG-01, DG-LOG-02 · `Artifacts` persistence module, logging middleware
-`Gate` A unit test proves that writing an unclassified field raises, and that a C2 value passed to the logger is redacted.
+`Gate` A unit test proves that writing an unclassified field raises, that a C2 value passed to the logger is redacted, and that a pseudonymous session ID passes through unredacted. That last case is new at v2.0 and is what makes the analytics stack workable.
 
 **Step 1.3 - Retention jobs before retention data**
-A scheduled deleter driven by `retention_policies` in `governance/data-map.yaml`. It runs from day one against an empty database.
+A scheduled deleter driven by `retention_policies` in `governance/data-map.yaml`. Runs from day one against an empty database.
 `Rules` DG-RET-01, DG-RET-02, DG-RET-04 · `Artifacts` retention worker, deletion audit table
 `Gate` Integration test: a seeded row past its TTL is hard-deleted and produces a completion record.
 
@@ -56,154 +65,186 @@ A scheduled deleter driven by `retention_policies` in `governance/data-map.yaml`
 
 ---
 
-## Phase 2 - Identity and licensed supply
+## Phase 2 - The app: personal lane
 
-The only route audio enters. Build it whole; a partial version of this phase is the failure mode the whole plan exists to prevent.
+The buildable core, and under v2.0 it is gated behind nothing but Phase 1. Detailed design lives in `BACKEND_PLAN.md` Phases B0 to B4.
 
-**Step 2.1 - Creator accounts with platform OAuth verification**
-Verification is OAuth to the creator's own channel. Self-declared identity is rejected.
-`Rules` DG-ACQ-04, DG-SEC-03 · `Gate` An unverified account cannot reach the upload endpoint. Enforced server-side, not in the UI.
+**Step 2.1 - Local media store and schema**
+Content-addressed blobs, refcounting, classification-tagged schema, retention worker on device.
+`Rules` DG-CLASS-01, DG-CLASS-03, DG-RET-01 · `Gate` `BACKEND_PLAN.md` B1 gate.
 
-**Step 2.2 - Upload with license acceptance in the same transaction**
-Acceptance timestamp, license version, declared speaker, declared source, and rights attestation are written atomically with the asset. No asset row can exist without them.
-`Rules` DG-ACQ-01, DG-ACQ-02 · `Gate` Database constraint, not application logic, makes an incomplete provenance record impossible.
+**Step 2.2 - Import and recording pipeline**
+User recording and user import of a file the user already owns. Hostile-input handling is the real work here.
+`Rules` DG-ACQ-01(b)(c), DG-SEC-04 · `Gate` `BACKEND_PLAN.md` B2 gate. Every fixture in the malformed-media corpus is rejected with an enum code and no crash.
 
-**Step 2.3 - Quarantine as the default state**
-Every asset lands `quarantined`. Nothing serves, ranks, indexes, or exports a quarantined asset.
-`Rules` DG-ACQ-03 · `Gate` Test proves each of the four surfaces excludes quarantined assets independently.
+**Step 2.3 - Playback engine and grid**
+`Rules` DG-ACQ-08 · `Gate` `BACKEND_PLAN.md` B3 and B4 gates, including the network-silence assertion.
 
-**Step 2.4 - Third-party speaker hold**
-If declared speaker is not the uploader, the asset stays quarantined pending a countersigned release. No public-figure carve-out.
-`Rules` DG-ACQ-05 · `Gate` Test covers the public-figure case explicitly.
+**Step 2.4 - The personal lane stays on the device**
+Nothing recorded or imported for a user's own board is transmitted, and nothing about it is used to train anything.
+`Rules` DG-ACQ-08 · `Gate` Instrumented test: a personal-lane trigger emits zero outbound packets. This is a promise the privacy notice makes, so it is asserted, not assumed.
 
-**Step 2.5 - Provenance vault**
-License and provenance chain written to a store separate from the operational database, 7-year retention, survives asset deletion.
-`Rules` DG-ACQ-07 · `Gate` Deleting an asset leaves the chain intact and queryable.
-
-**Step 2.6 - Revocation path**
-Self-service revocation propagating to database, object store, CDN, search index, and client prefetch within 24 hours.
-`Rules` DG-ACQ-06, DG-RET-02 · `Gate` Timed end-to-end test: revoke, then confirm every surface returns nothing inside the window.
-
-**Phase 2 exit:** the only audio in the system is licensed, attributed, revocable, and quarantined until cleared.
+**Phase 2 exit:** a working soundboard with no server dependency, no account, and no telemetry.
 
 ---
 
-## Phase 3 - Publication gates
+## Phase 3 - Bundled catalogue
 
-Three automated gates decide whether a quarantined asset becomes public. Built before ranking, because ranking must never see an ungated asset.
+The first-party catalogue that ships inside the binary. This is the uninsured lane: safe harbor covers what users submit, not what we choose.
 
-**Step 3.1 - Music detection**
-Fingerprint or classifier gate rejecting third-party commercial music. Result recorded on the asset.
-`Rules` DG-STOP-01/P5, DG-RANK-07 · `Gate` A known music-bearing fixture is blocked. False-negative rate measured and recorded, not assumed.
+**Step 3.1 - Catalogue selection and review**
+A named owner reviews the catalogue before every release. Full or substantially complete commercial recordings are excluded.
+`Rules` DG-TAKE-06, P5 · `Artifacts` catalogue manifest with a per-clip source note and reviewer sign-off
+`Gate` No release ships a catalogue change without a recorded review. Unlike a user submission, a bundled clip cannot be pulled without shipping a build, which is exactly why a human sits in front of it.
 
-**Step 3.2 - Speech content moderation**
-Automated review for slurs, harassment, sexual content involving minors, and doxxing. Escalation path to a human.
-`Rules` DG-RANK-07, DG-PURP-02 (`P-SAFETY`) · `Gate` Failing assets stay quarantined and generate a moderation record.
+**Step 3.2 - Catalogue delivery and expiry**
+Signed manifest, CDN delivery, client-side expiry that fails closed so a clip can be pulled from devices that are offline.
+`Rules` DG-ACQ-06, DG-TAKE-02, DG-RET-02 · `Gate` `BACKEND_PLAN.md` B5 gate. Manifest expiry sits inside the 48-hour takedown window with margin.
 
-**Step 3.3 - Provenance completeness check**
-Re-verify `DG-ACQ-02` completeness at publish time, not only at upload.
-`Rules` DG-ACQ-03, DG-RANK-07 · `Gate` A missing or errored gate result is treated as failure, never as pass. Test the missing-result case specifically.
-
-**Phase 3 exit:** publication is impossible without three recorded passes.
+**Phase 3 exit:** catalogue clips are reviewed before shipping and removable from every device inside the takedown window.
 
 ---
 
-## Phase 4 - Engagement and the ranking agent
+## Phase 4 - Community submissions (gated behind Phase 0)
 
-**Step 4.1 - Declare events before emitting them**
-Every analytics event registered in `governance/data-map.yaml` first. The pipeline drops undeclared events rather than ignoring them.
-`Rules` DG-LOG-05, DG-PURP-03 · `Gate` An undeclared event is dropped and counted in a metric.
+The only route that publishes one user's audio to another. Do not start it until Phase 0 exits.
 
-**Step 4.2 - Aggregation boundary**
-Raw events are pseudonymous and short-lived; the agent reads only aggregated counters. No account identifiers, no per-user streams, no free text cross the boundary.
-`Rules` DG-RANK-01, DG-RANK-02, DG-RANK-06 · `Gate` The agent's input contract is typed and contains no C2 or C3 field. Enforced by a schema test.
+**Step 4.1 - Accounts and submission**
+Verified email or platform sign-in. Channel-ownership OAuth is not required at v2.0.
+`Rules` DG-ACQ-04 · `Gate` An unverified account cannot reach the submission endpoint. Enforced server-side, not in the UI.
 
-**Step 4.3 - Feature allowlist**
-Ranking features limited to the seven permitted signals. Adding a feature requires a governance amendment.
-`Rules` DG-RANK-04 · `Gate` A test asserts the feature set equals the allowlist exactly.
+**Step 4.2 - Submission record**
+Submitting account ID, timestamp, accepted terms version, rights warranty, written atomically with the asset. Four fields, no pre-clearance workflow behind them.
+`Rules` DG-ACQ-02 · `Gate` Database constraint, not application logic, makes an incomplete submission record impossible.
 
-**Step 4.4 - Ranking audit trail**
-Every placement-affecting decision writes inputs, ruleset version, score, timestamp. 24-month retention.
-`Rules` DG-RANK-03 · `Gate` Any live ranking can be reconstructed from the audit record alone.
+**Step 4.3 - Moderation gate**
+Automated review for sexual content involving minors, doxxing, and targeted harassment, with a human escalation path. This is the one publication gate v2.0 retains in full; music detection and provenance completeness are gone.
+`Rules` DG-RANK-07, DG-PURP-02 (`P-SAFETY`) · `Gate` A failing asset is not served and generates a moderation record. A missing or errored gate result is treated as a failure, never as a pass. Test the missing-result case specifically.
 
-**Step 4.5 - Human publish step**
-The agent proposes promotion into discovery surfaces; a person approves. No auto-promotion.
-`Rules` DG-RANK-05 · `Gate` No code path promotes without a recorded human approval.
+**Step 4.4 - Takedown execution path**
+The Phase 0 runbook wired to code: remove from database, object store, CDN, search index, and client caches inside 48 hours, with the strike ledger updated.
+`Rules` DG-TAKE-02, DG-TAKE-03, DG-TAKE-04, DG-RET-02 · `Gate` Timed end-to-end test: file a claim, then confirm every surface returns nothing inside the window, including a client that was offline when the claim landed.
 
-**Phase 4 exit:** ranking is first-party, pseudonymous, allowlisted, auditable, and human-gated.
+**Step 4.5 - Submitter removal and record retention**
+Self-service removal within 7 days. Submission and takedown records retained 3 years after removal.
+`Rules` DG-ACQ-06, DG-ACQ-07 · `Gate` Removing an asset leaves the submission record intact and queryable. That record is the safe harbor evidence, so it outlives the asset deliberately.
 
----
-
-## Phase 5 - Distribution surfaces
-
-Order chosen by where sounds are actually played, which is also the order of least data risk.
-
-**Step 5.1 - Discord bot**
-Server-side playback of published assets only. Store guild and channel identifiers as C2 with a declared TTL.
-`Rules` DG-CLASS-01, DG-RET-01 · `Gate` The bot cannot resolve a quarantined or revoked asset.
-
-**Step 5.2 - Desktop client**
-Local playback and virtual audio device. Local cache honours revocation on next launch and on a 24-hour refresh.
-`Rules` DG-ACQ-06 · `Gate` A revoked asset is unplayable offline after the refresh window.
-
-**Step 5.3 - Mobile app, age gate first**
-Neutral age gate renders before any identifier is generated and before any data-collecting SDK initialises. Under-13 goes to Restricted Mode: no account, no identifiers, no analytics, no ads, curated catalogue. On iOS, no tracking identifier is read before ATT authorisation.
-`Rules` DG-USER-01, DG-USER-02, DG-USER-03, DG-USER-04 · `Gate` Instrumented test proves zero network calls carrying an identifier before the gate resolves. If Restricted Mode cannot ship for a surface, that surface denies access.
-
-**Step 5.4 - Store privacy declarations generated, not written**
-Apple Privacy Nutrition Label and Google Play Data Safety generated from `governance/data-map.yaml`.
-`Rules` DG-USER-05 · `Gate` Declaration diff is reviewed in any release that changes collection.
-
-**Phase 5 exit:** every surface enforces licensing, revocation, and the age gate independently.
+**Phase 4 exit:** submissions are attributable, moderated, removable inside 48 hours, and evidenced for 3 years.
 
 ---
 
-## Phase 6 - Consumer rights and monetisation
+## Phase 5 - Ranking and discovery
 
-**Step 6.1 - Rights request endpoints**
-Know, access, delete, correct, portability, opt out of sale/share, limit sensitive use. Identity verification step. 45-day SLA with a completion record. Built with the account system, not after it.
+**Step 5.1 - Declare events before emitting them**
+Every analytics event registered in `governance/data-map.yaml` first. The pipeline drops undeclared events rather than ignoring them, because the App Store privacy label is generated from that file.
+`Rules` DG-LOG-05, DG-CLASS-03 · `Gate` An undeclared event is dropped and counted in a metric.
+
+**Step 5.2 - Ranking**
+First-party engagement signals, plus third-party signals only where an official API permits them. Aggregated by default; per-user personalisation is permitted where the privacy notice discloses it.
+`Rules` DG-RANK-01, DG-RANK-02 · `Gate` The privacy notice and the implemented personalisation agree. Check both directions.
+
+**Step 5.3 - Sensitive-attribute exclusion**
+The seven-feature allowlist is gone. The prohibition that replaced it is narrower and absolute: no C3 attribute and no proxy for a protected characteristic enters the ranker.
+`Rules` DG-RANK-04 · `Gate` A test asserts the feature set contains no C3 field and no listed proxy. This is the one ranking control that did not relax, so it gets a real test rather than a review note.
+
+**Step 5.4 - Sampled audit**
+Ruleset version plus a sampled input snapshot, enough to reconstruct why something ranked where it did. The per-decision audit record is no longer required.
+`Rules` DG-RANK-03 · `Gate` A sampled decision can be reconstructed from the record alone.
+
+**Step 5.5 - Automated promotion**
+Promotion into discovery surfaces is automated. Human review is required only for a surface presented editorially as a staff pick.
+`Rules` DG-RANK-05 · `Gate` A staff-pick surface cannot be populated without a recorded human approval. Every other surface can.
+
+**Phase 5 exit:** ranking is declared, disclosed, free of sensitive attributes, and reconstructible.
+
+---
+
+## Phase 6 - Monetisation
+
+Approved at v2.0, and the phase where the non-negotiable platform controls concentrate.
+
+**Step 6.1 - ATT before any tracking identifier**
+No SDK that reads the IDFA initialises before the ATT prompt resolves. Apple enforces this at review, so a miss here is a rejected build rather than a governance finding.
+`Rules` DG-USER-04, P6 · `Gate` Instrumented test proves zero reads of a tracking identifier, and zero initialisations of an SDK that reads one, before the prompt resolves.
+
+**Step 6.2 - Ads and attribution SDKs**
+Pre-approved categories under `DG-VEND-03`, so this is a manifest entry rather than a review cycle. No personalised ads to a user known to be under 13.
+`Rules` DG-VEND-01, DG-VEND-03, P6, P8 · `Gate` Every SDK in the binary has a `vendors.yaml` entry with a declared region. Diff the built binary against the manifest, do not trust the dependency file.
+
+**Step 6.3 - CCPA sale and share opt-out**
+Reachable from the settings screen, effective within 30 days, recorded with purpose ID and timestamp.
+`Rules` DG-USER-06, DG-USER-07 · `Gate` Opting out measurably stops the sharing inside the window. Required the moment `P-ADS` ships, not later.
+
+**Step 6.4 - Privacy labels generated, not written**
+Apple Privacy Nutrition Label regenerated from `governance/data-map.yaml` in any release that changes collection.
+`Rules` DG-USER-05 · `Gate` Declaration diff reviewed in the release PR. An inaccurate label is both a store rejection and an FTC Section 5 exposure.
+
+**Step 6.5 - In-app purchases**
+StoreKit, no card data in our systems. Vendor entry before integration code.
+`Rules` DG-VEND-01, DG-VEND-02, DG-CLASS-01 · `Gate` No C3 payment field appears in `governance/data-map.yaml` under our own stores.
+
+**Phase 6 exit:** the app monetises with ATT honoured, every SDK declared, and the label matching the code.
+
+---
+
+## Phase 7 - Consumer rights
+
+**Step 7.1 - Rights request endpoints**
+Know, access, delete, correct, portability, opt out of sale/share. Identity verification step, 45-day SLA, completion record. Built with the account system in Phase 4, not after it.
 `Rules` DG-USER-06, DG-RET-03 · `Gate` End-to-end test from request through hard delete through audit record.
 
-**Step 6.2 - Consent ledger**
-Consent recorded as an event with string, purpose IDs, version, timestamp, surface. Withdrawal is as easy as granting and stops processing within 24 hours.
-`Rules` DG-USER-07 · `Gate` Withdrawing `P-PRODUCT-ANALYTICS` measurably stops those events inside the window.
+**Step 7.2 - Under-13 handling**
+No age gate is required at v2.0, because the app is rated 12+ and is not child-directed. What is required is a path for actual knowledge: when we learn a user is under 13, collection stops and what we hold is deleted.
+`Rules` DG-USER-01, DG-USER-02, P6 · `Gate` The runbook exists and the deletion path is tested. The app is never submitted to the Kids Category.
 
-**Step 6.3 - Payments through a tokenising processor**
-No card data touches our systems. Vendor entry with an executed DPA before any integration code.
-`Rules` DG-VEND-01, DG-VEND-02, DG-CLASS-01 (C3) · `Gate` No C3 payment field appears in `governance/data-map.yaml` under our own stores.
-
-**Step 6.4 - Paid triggers and creator payouts**
-Creator keeps the majority. Payout records under `P-PAYMENT` with 7-year retention.
-`Rules` DG-PURP-02, DG-RET-01 · `Gate` Financial records are complete and immutable.
-
-**Phase 6 exit:** users can exercise every applicable right, and money moves without us holding card data.
+**Phase 7 exit:** every applicable right is servable inside its statutory window.
 
 ---
 
-## Phase 7 - Standing operations
+## Phase 8 - Standing operations
 
 Continuous, not a phase that ends.
 
 | Cadence | Activity | Rules |
 |---|---|---|
-| Every PR | Governance gate and Compliance Block | DG-PR-01 |
+| Every PR | Governance gate; Compliance Block where DG-AGENT-06 applies | DG-PR-01 |
+| Every release | Bundled catalogue review | DG-TAKE-06 |
+| Every release | Privacy label diff | DG-USER-05 |
 | Weekly | Exception expiry review | DG-EX-03 |
-| Monthly | Vendor and SDK diff against `vendors.yaml` | DG-VEND-01, DG-VEND-03 |
+| Monthly | SDK diff of the built binary against `vendors.yaml` | DG-VEND-01, DG-VEND-03 |
+| Monthly | Takedown response-time audit | DG-TAKE-04 |
 | Quarterly | C2/C3 access log review | DG-LOG-04 |
 | Quarterly | Retention job verification against `data-map.yaml` | DG-RET-01 |
-| Quarterly | Takedown response-time audit | DG-TAKE-04 |
-| Per release | Store privacy declaration diff | DG-USER-05 |
 | On detection | Incident report within 24 hours | DG-SEC-06 |
+
+The takedown audit moved from quarterly to monthly. Under a reactive rights model the response time is the control, so measuring it four times a year is not enough.
 
 ---
 
 ## What this plan deliberately does not build
 
-Listed so that no one has to re-litigate it mid-sprint:
+Listed so that no one has to re-litigate it mid-sprint. Each needs a Section 14 amendment, not a product decision.
 
-- Any ingestion of third-party platform media (`P1`, `P2`)
-- Any voice synthesis or cloning (`P4`)
-- Ad targeting, audience export, or data sale (`DG-PURP-04`)
-- A non-US launch without a scope amendment (`DG-VEND-04`, Section 14)
+- Voice cloning, synthesis, or style transfer of a real person (`P4`)
+- Automated or bulk retrieval of platform media in breach of a platform's terms (`P1`)
+- A Kids Category submission, or knowing collection from a user under 13 (`P6`)
+- Personalised advertising to a user known to be under 13 (`P6`)
+- Any transmission of the personal lane off the device (`DG-ACQ-08`)
 
-Each of these requires a governance amendment before it can appear in a sprint plan, not a product decision.
+## What v1.0 planned and v2.0 dropped
+
+Recorded so the absence reads as a decision rather than an oversight. All follow from `DATA_GOVERNANCE.md` Section 0.1.
+
+| Dropped | Was, in v1.0 numbering |
+|---|---|
+| Creator Distribution License and counsel sign-off on it | Phase 0 Steps 0.1, 0.2 |
+| Platform OAuth channel verification | Phase 2 Step 2.1 |
+| Quarantine as default asset state | Phase 2 Step 2.3 |
+| Third-party speaker hold and countersigned releases | Phase 2 Step 2.4 |
+| Provenance vault with 7-year chain | Phase 2 Step 2.5 |
+| Music-detection publication gate | Phase 3 Step 3.1 |
+| Provenance-completeness publication gate | Phase 3 Step 3.3 |
+| Ranking feature allowlist | Phase 4 Step 4.3 |
+| Human approval before any promotion | Phase 4 Step 4.5 |
+| Age gate before any identifier, and Restricted Mode | Phase 5 Step 5.3 |
+| Consent ledger with opt-in for product analytics | Phase 6 Step 6.2 |

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Governance gate for Soundboard.
 
-Enforces the machine-checkable subset of DATA_GOVERNANCE.md.
+Enforces the machine-checkable subset of DATA_GOVERNANCE.md v2.0.
 Exit 0 = pass, 1 = violations found, 2 = gate could not run.
 
 Usage:
@@ -25,6 +25,9 @@ ROOT = Path(__file__).resolve().parent.parent
 GOV = ROOT / "governance"
 VALID_CLASSES = {"C0", "C1", "C2", "C3", "C4"}
 PROTECTED = {"C2", "C3"}
+# DG-VEND-04 (v2.0): the US-only restriction is withdrawn. A region still has
+# to be declared, because the privacy notice states where data is processed.
+VALID_REGIONS = {"us", "eu", "uk", "apac", "global"}
 SCAN_SUFFIXES = {".py", ".ts", ".tsx", ".js", ".jsx", ".go", ".rb", ".java", ".kt", ".swift", ".rs", ".sql", ".sh", ".yaml", ".yml", ".json", ".toml"}
 SCAN_SKIP = {"node_modules", ".git", "dist", "build", "vendor", ".venv", "venv", "governance", "__pycache__"}
 
@@ -72,8 +75,8 @@ for v in vendors_doc.get("vendors") or []:
     classes = set(v.get("data_classes") or [])
     if classes & PROTECTED and v.get("dpa_status") != "executed":
         fail("DG-VEND-02", f"vendor {vid}: receives {sorted(classes & PROTECTED)} without an executed DPA")
-    if v.get("hosting_region") != "us":
-        fail("DG-VEND-04", f"vendor {vid}: hosting_region must be 'us' at v1.0")
+    if v.get("hosting_region") not in VALID_REGIONS:
+        fail("DG-VEND-04", f"vendor {vid}: hosting_region must be one of {sorted(VALID_REGIONS)}")
     if v.get("model_provider") and not classes <= {"C0", "C1"}:
         fail("DG-VEND-05", f"vendor {vid}: model providers are capped at C1, found {sorted(classes)}")
     for pid in v.get("purpose_ids") or []:
@@ -86,7 +89,7 @@ for v in vendors_doc.get("vendors") or []:
 def check_record(kind: str, label: str, rec: dict) -> None:
     cls = rec.get("class")
     if cls not in VALID_CLASSES:
-        fail("DG-CLASS-02", f"{kind} {label}: missing or invalid class (untagged is treated as C3)")
+        fail("DG-CLASS-02", f"{kind} {label}: missing or invalid class (untagged is treated as C2)")
     pids = rec.get("purpose_ids") or []
     if not pids:
         fail("DG-PURP-03", f"{kind} {label}: no registered purpose consumes this")
@@ -131,6 +134,8 @@ if exc_path.exists():
 
 # ---------------------------------------------------------------- code scan
 
+# These map to the rows still marked Prohibited in DATA_GOVERNANCE.md Section 3
+# at v2.0. P2, P3, P5 and P12 were relaxed in 2.0 and are no longer scanned for.
 BANNED = [
     (r"\byt[-_]?dlp\b|\byoutube[-_]dl\b|\bstreamlink\b|\bpytube\b", "P1", "platform media downloader"),
     (r"helix/clips.*(download|mp4)|clips\.twitch\.tv/.*\.mp4", "P1", "Twitch clip media retrieval"),
@@ -165,7 +170,7 @@ scan()
 if "--pr" in sys.argv:
     pr_file = Path(sys.argv[sys.argv.index("--pr") + 1])
     text = pr_file.read_text() if pr_file.exists() else ""
-    required = ["Data classes touched:", "Purpose IDs:", "Rules applied:", "Prohibited patterns check:"]
+    required = ["Data classes touched:", "Purpose IDs:", "Rules applied:", "Checks reviewed:"]
     missing = [r for r in required if r not in text]
     if missing:
         fail("DG-PR-01", f"PR body is missing Compliance Block lines: {', '.join(missing)}")
