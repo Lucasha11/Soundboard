@@ -16,6 +16,7 @@ a { color:#c8ff2e; } a:hover { color:#dcff7a; }
 @keyframes eq { from { height:5px } to { height:17px } }
 @keyframes sweepA { from { width:0% } to { width:100% } }
 @keyframes sweepB { from { width:0% } to { width:100% } }
+@keyframes spin { to { transform:rotate(360deg) } }
 </style>
 </helmet>
 <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
@@ -28,16 +29,16 @@ a { color:#c8ff2e; } a:hover { color:#dcff7a; }
   <div style="flex-shrink:0;padding:58px 14px 10px;background:linear-gradient(#101216,#101216 70%,rgba(16,18,22,0))">
     <div style="display:flex;align-items:flex-end;gap:10px">
       <h1 style="margin:0;font-size:31px;font-weight:900;letter-spacing:-0.035em;line-height:1">Explore</h1>
-      <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;color:#6f757e;padding-bottom:4px">1,284 clips</span>
+      <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;color:#6f757e;padding-bottom:4px">{{ total }} clips</span>
     </div>
     <div style="display:flex;gap:8px;margin-top:11px">
       <div style="flex:1;display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;background:#181b21;border:1px solid #262a31;border-radius:19px;font-size:13px;color:#6f757e">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#6f757e" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
         <span>Search sounds and gifs</span>
       </div>
-      <div style="width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#181b21;border:1px solid #262a31;border-radius:19px">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#b6bcc4" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
-      </div>
+      <button aria-label="Import a sound" style="width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;background:#c8ff2e;border:0;border-radius:19px;cursor:pointer" onClick="{{ openImport }}">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#101216" stroke-width="2.2" stroke-linecap="round"><path d="M12 16V4"></path><path d="M7.5 8.5L12 4l4.5 4.5"></path><path d="M4.5 15v3.5a1.5 1.5 0 001.5 1.5h12a1.5 1.5 0 001.5-1.5V15"></path></svg>
+      </button>
     </div>
     <div style="display:flex;gap:7px;margin-top:11px;overflow:hidden">
       <span style="flex-shrink:0;padding:6px 12px;border-radius:15px;background:#c8ff2e;color:#101216;font-size:12px;font-weight:700">All</span>
@@ -48,241 +49,56 @@ a { color:#c8ff2e; } a:hover { color:#dcff7a; }
     </div>
   </div>
 
-  <div style="flex:1;min-height:0;overflow:auto;padding:4px 14px 16px">
-    <div style="display:flex;align-items:baseline;gap:8px;padding:10px 0 8px">
-      <h2 style="margin:0;font-size:14px;font-weight:800;letter-spacing:-0.01em">Trending today</h2>
-      <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:9.5px;color:#5c6169">TAP TO FIRE</span>
-      <span style="margin-left:auto;font-size:11.5px;font-weight:600;color:#c8ff2e">See all</span>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#3b4a8c;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE0 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">slow clap</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:02</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE0 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#7a3b52;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE1 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">the fridge scream</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:03</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE1 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#2f6f5e;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE2 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">bro really said that</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:04</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE2 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#8a5a2b;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE3 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">toaster fanfare</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:02</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE3 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#5a3b7a;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE4 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">gremlin giggle</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:01</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE4 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#37566b;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE5 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">wet dog shake</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:03</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE5 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#6b4a2f;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE6 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">keyboard rage</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:05</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE6 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#2f6b8a;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE7 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">victory kazoo</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:02</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE7 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#7a4a3b;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE8 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">chair collapse</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:03</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE8 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#45607a;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE9 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">polite disagree</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:02</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE9 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#8f6f3a;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE10 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">goat yell</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:01</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE10 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#b0453f;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE11 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">mic drop stomp</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:02</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE11 }}">
-        </span>
-      </button>
-    </div>
-
-    <sc-if value="{{ ads }}" hint-placeholder-val="{{ true }}">
-    <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:9px;background:#14161b;border:1px solid #262a31;border-radius:10px">
-      <div style="width:52px;height:52px;flex-shrink:0;border-radius:7px;background:#22262e;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 4px,transparent 4px 9px);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:7px;color:#5c6169;text-align:center;line-height:1.3">AD<br>52²</div>
-      <div style="min-width:0;flex:1">
-        <div style="font-size:12.5px;font-weight:700;letter-spacing:-0.01em">Sound+ kills the ads</div>
-        <div style="margin-top:3px;font-size:11px;color:#8b9099;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Offline boards, longer clips, 3 months free</div>
+  <div style="flex:1;min-height:0;overflow:auto;padding:4px 14px 16px" ref="{{ scrollRef }}" onScroll="{{ onScroll }}">
+    <sc-for list="{{ groups }}" as="g" hint-placeholder-count="1">
+      <div>
+        <div style="display:flex;align-items:baseline;gap:8px;padding:10px 0 8px">
+          <h2 style="margin:0;font-size:14px;font-weight:800;letter-spacing:-0.01em">{{ g.title }}</h2>
+          <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:9.5px;color:#5c6169">{{ g.kicker }}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="12">
+            <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;aspect-ratio:1/1;cursor:pointer;font-family:inherit;background:{{ it.color }}" onClick="{{ it.play }}">
+              <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
+              <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
+              <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">{{ it.name }}</span>
+              <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">{{ it.dur }}</span>
+              <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);transition:opacity 120ms ease;opacity:{{ it.ring }}"></span>
+            </button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ g.ad }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:9px;background:#14161b;border:1px solid #262a31;border-radius:10px">
+          <div style="width:52px;height:52px;flex-shrink:0;border-radius:7px;background:#22262e;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 4px,transparent 4px 9px);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:7px;color:#5c6169;text-align:center;line-height:1.3">AD<br>52²</div>
+          <div style="min-width:0;flex:1">
+            <div style="font-size:12.5px;font-weight:700;letter-spacing:-0.01em">{{ g.adTitle }}</div>
+            <div style="margin-top:3px;font-size:11px;color:#8b9099;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ g.adSub }}</div>
+          </div>
+          <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+            <span style="padding:6px 11px;border-radius:14px;font-size:11px;font-weight:700;border:1px solid {{ g.adColor }};color:{{ g.adColor }}">{{ g.adCta }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:0.08em;color:#5c6169">SPONSORED</span>
+          </div>
+        </div>
+        </sc-if>
       </div>
-      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px">
-        <span style="padding:6px 11px;border:1px solid #c8ff2e;border-radius:14px;font-size:11px;font-weight:700;color:#c8ff2e">Open</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:0.08em;color:#5c6169">SPONSORED</span>
-      </div>
+    </sc-for>
+
+    <sc-if value="{{ loadingMore }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0 4px">
+      <span style="width:14px;height:14px;border-radius:50%;border:2px solid #2f353d;border-top-color:#c8ff2e;animation:spin 720ms linear infinite"></span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.06em;color:#5c6169">LOADING MORE</span>
     </div>
     </sc-if>
 
-    <div style="display:flex;align-items:baseline;gap:8px;padding:16px 0 8px">
-      <h2 style="margin:0;font-size:14px;font-weight:800;letter-spacing:-0.01em">Memes of the week</h2>
-      <span style="margin-left:auto;font-size:11.5px;font-weight:600;color:#c8ff2e">See all</span>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#2f8f88;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE12 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">double take</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:02</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE12 }}">
-        </span>
+    <sc-if value="{{ atEnd }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;padding:24px 10px 6px;text-align:center">
+      <span style="width:34px;height:1px;background:#2f353d"></span>
+      <div style="font-size:12.5px;font-weight:700">That is every sound in the library</div>
+      <div style="font-size:11px;line-height:1.4;color:#8b9099;max-width:230px">All {{ total }} clips, heard. New ones land every Thursday — or add your own now.</div>
+      <button style="margin-top:2px;display:flex;align-items:center;gap:7px;padding:8px 14px;border:0;border-radius:17px;background:#c8ff2e;color:#101216;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer" onClick="{{ openImport }}">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#101216" stroke-width="2.4" stroke-linecap="round"><path d="M12 16V4"></path><path d="M7.5 8.5L12 4l4.5 4.5"></path><path d="M4.5 15v3.5a1.5 1.5 0 001.5 1.5h12a1.5 1.5 0 001.5-1.5V15"></path></svg>
+        Import a sound
       </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#256054;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE13 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">grandma dunk</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:04</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE13 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#7d6ce0;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE14 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">surprise cowbell</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:01</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE14 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#c9772a;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE15 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">chef kiss</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:02</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE15 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#6d5bd0;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE16 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">yeah okay</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:01</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE16 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#34495e;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE17 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">cat lasagna</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:03</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE17 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#7a4b8f;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE18 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">sad trombone</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:03</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE18 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#455f7a;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE19 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">airhorn intro</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:02</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE19 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#a04a3a;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE20 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">kitchen disaster</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:03</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE20 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#2b6f7a;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE21 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">slow motion trip</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:04</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE21 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#8f5a2f;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE22 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">unearned confidence</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:02</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE22 }}">
-        </span>
-      </button>
-      <button style="position:relative;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:#5a4bb5;aspect-ratio:1/1;cursor:pointer;font-family:inherit" onClick="{{ pE23 }}">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 5px,transparent 5px 11px)"></span>
-        <span style="position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 34%,rgba(255,255,255,.12),transparent 70%)"></span>
-        <span style="position:absolute;left:3px;right:3px;top:50%;transform:translateY(-50%);text-align:center;font-size:11px;font-weight:800;line-height:1.12;color:#fff;-webkit-text-stroke:2.4px #000;paint-order:stroke fill;text-wrap:balance">tiny victory horn</span>
-        <span style="position:absolute;left:4px;bottom:4px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.72);background:rgba(9,10,13,.6);border-radius:3px;padding:1px 3px">0:01</span>
-        <span style="position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px #c8ff2e;background:rgba(9,10,13,.34);display:flex;align-items:flex-end;transition:opacity 120ms ease;opacity:{{ oE23 }}">
-        </span>
-      </button>
-    </div>
-
-    <sc-if value="{{ ads }}" hint-placeholder-val="{{ true }}">
-    <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:9px;background:#14161b;border:1px solid #262a31;border-radius:10px">
-      <div style="width:52px;height:52px;flex-shrink:0;border-radius:7px;background:#22262e;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 4px,transparent 4px 9px);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:7px;color:#5c6169;text-align:center;line-height:1.3">AD<br>52²</div>
-      <div style="min-width:0;flex:1">
-        <div style="font-size:12.5px;font-weight:700;letter-spacing:-0.01em">Mic check: Zephyr USB</div>
-        <div style="margin-top:3px;font-size:11px;color:#8b9099;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Record your own clips. $69 this week.</div>
-      </div>
-      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px">
-        <span style="padding:6px 11px;border:1px solid #2f353d;border-radius:14px;font-size:11px;font-weight:700;color:#b6bcc4">Shop</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:0.08em;color:#5c6169">SPONSORED</span>
-      </div>
     </div>
     </sc-if>
 
@@ -543,12 +359,90 @@ a { color:#c8ff2e; } a:hover { color:#dcff7a; }
   </div>
 </div>
 
+<div style="position:absolute;inset:0;z-index:70;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(9,10,13,.6);transition:opacity 180ms ease;opacity:{{ impOp }};pointer-events:{{ impPE }}" onClick="{{ closeImport }}">
+  <div style="background:#181b21;border-top:1px solid #2f353d;border-radius:16px 16px 0 0;padding:12px 14px 30px">
+    <div style="width:38px;height:4px;border-radius:2px;background:#3d444e;margin:0 auto 12px"></div>
+    <div style="display:flex;align-items:baseline;gap:8px">
+      <h3 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.02em">Import a sound</h3>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#5c6169">MAX 8 SEC</span>
+    </div>
+    <p style="margin:6px 0 12px;font-size:11.5px;line-height:1.4;color:#8b9099">Bring in a clip, then pair it with a gif. Yours stay private until you publish.</p>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <button style="display:flex;align-items:center;gap:11px;width:100%;padding:12px;border:1px solid #2f353d;border-radius:11px;background:#14161b;color:#e8eaed;font-family:inherit;text-align:left;cursor:pointer" onClick="{{ stop }}">
+        <span style="width:32px;height:32px;flex-shrink:0;border-radius:50%;background:#c8ff2e;display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#101216" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M6 11a6 6 0 0012 0"></path><path d="M12 17v4"></path></svg>
+        </span>
+        <span style="min-width:0">
+          <span style="display:block;font-size:13px;font-weight:700">Record now</span>
+          <span style="display:block;margin-top:2px;font-size:11px;color:#8b9099">Hold to capture up to 8 seconds</span>
+        </span>
+      </button>
+      <button style="display:flex;align-items:center;gap:11px;width:100%;padding:12px;border:1px solid #2f353d;border-radius:11px;background:#14161b;color:#e8eaed;font-family:inherit;text-align:left;cursor:pointer" onClick="{{ stop }}">
+        <span style="width:32px;height:32px;flex-shrink:0;border-radius:50%;background:#262a31;display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#b6bcc4" stroke-width="2" stroke-linecap="round"><path d="M4 7.5A1.5 1.5 0 015.5 6h4l2 2.5h7A1.5 1.5 0 0120 10v8a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18z"></path></svg>
+        </span>
+        <span style="min-width:0">
+          <span style="display:block;font-size:13px;font-weight:700">Upload from Files</span>
+          <span style="display:block;margin-top:2px;font-size:11px;color:#8b9099">mp3, m4a, wav, or a gif with audio</span>
+        </span>
+      </button>
+      <button style="display:flex;align-items:center;gap:11px;width:100%;padding:12px;border:1px solid #2f353d;border-radius:11px;background:#14161b;color:#e8eaed;font-family:inherit;text-align:left;cursor:pointer" onClick="{{ stop }}">
+        <span style="width:32px;height:32px;flex-shrink:0;border-radius:50%;background:#262a31;display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#b6bcc4" stroke-width="2" stroke-linecap="round"><path d="M10 13.5a3.5 3.5 0 005 0l3-3a3.5 3.5 0 00-5-5l-1 1"></path><path d="M14 10.5a3.5 3.5 0 00-5 0l-3 3a3.5 3.5 0 005 5l1-1"></path></svg>
+        </span>
+        <span style="min-width:0">
+          <span style="display:block;font-size:13px;font-weight:700">Paste a link</span>
+          <span style="display:block;margin-top:2px;font-size:11px;color:#8b9099">Grab audio from a video URL</span>
+        </span>
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px;border-radius:9px;border:1px dashed #3d444e">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#6f757e" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5M12 7.6v.6"></path></svg>
+      <span style="font-size:11px;line-height:1.35;color:#8b9099">Only upload clips you have the rights to.</span>
+    </div>
+  </div>
+</div>
+
 </div>
 </x-import>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:460,&quot;height&quot;:920},&quot;showAds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Monetization&quot;},&quot;startTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Explore&quot;,&quot;Soundboard&quot;],&quot;default&quot;:&quot;Explore&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Prototype&quot;}}">
 class Component extends DCLogic {
-  state = { tab: null, on: null, prog: 0, edit: false, gone: {}, slot: null, phase: 0 };
+  state = { tab: null, on: null, prog: 0, edit: false, gone: {}, slot: null, phase: 0, imp: false, loaded: 24, loading: false };
+
+  lib() {
+    if (this._lib) return this._lib;
+    const names = ['slow clap','the fridge scream','bro really said that','toaster fanfare','gremlin giggle','wet dog shake','keyboard rage','victory kazoo','chair collapse','polite disagree','goat yell','mic drop stomp','double take','grandma dunk','surprise cowbell','chef kiss','yeah okay','cat lasagna','sad trombone','airhorn intro','kitchen disaster','slow motion trip','unearned confidence','tiny victory horn','elevator silence','printer meltdown','soggy applause','distant siren','fake cough','bathroom acoustics','dial-up nostalgia','gym door slam','sprinkler panic','coin flip destiny','dramatic gasp','pigeon takeoff','rubber duck menace','vending machine no','lightbulb idea','wrong buzzer','microwave finale','bubble wrap spree','skateboard fail','scooter honk','third wheel sigh','wine glass ping','popcorn riot','crowd goes mild','sudden reverse','the wet slap','bass too loud','tape rewind','bike bell chase','laugh track ghost','tiny drumroll','shopping cart wobble','sneeze cascade','clock of doom','balloon deflate','last call bell'];
+    const pal = ['#3b4a8c','#7a3b52','#2f6f5e','#8a5a2b','#5a3b7a','#37566b','#6b4a2f','#2f6b8a','#7a4a3b','#45607a','#8f6f3a','#b0453f','#2f8f88','#256054','#7d6ce0','#c9772a','#6d5bd0','#34495e','#7a4b8f','#455f7a','#a04a3a','#2b6f7a','#8f5a2f','#5a4bb5'];
+    const kinds = ['square','sawtooth','triangle','sine'];
+    this._lib = names.map((n, i) => ({
+      name: n,
+      color: pal[i % pal.length],
+      f: 420 + ((i * 137) % 760),
+      k: kinds[i % kinds.length],
+      d: 0.14 + ((i * 7) % 5) * 0.04,
+      dur: '0:0' + (1 + ((i * 3) % 5))
+    }));
+    return this._lib;
+  }
+
+  componentDidMount() { this.topUp(); }
+  componentDidUpdate() { this.topUp(); }
+
+  topUp() {
+    const el = this._scroll;
+    if (!el || this.state.loading) return;
+    if (this.state.loaded >= this.lib().length) return;
+    if (el.scrollHeight <= el.clientHeight + 40) this.loadMore();
+  }
+
+  loadMore() {
+    const total = this.lib().length;
+    if (this.state.loading || this.state.loaded >= total) return;
+    this.setState({ loading: true });
+    clearTimeout(this._lt);
+    this._lt = setTimeout(() => this.setState((s) => ({ loading: false, loaded: Math.min(total, s.loaded + 12) })), 450);
+  }
 
   ctx() {
     if (!this._ctx) {
@@ -606,6 +500,34 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state;
     const tab = st.tab || (this.props.startTab === 'Soundboard' ? 'board' : 'explore');
+    const lib = this.lib();
+    const total = lib.length;
+    const loaded = Math.min(st.loaded, total);
+    const titles = ['Trending today', 'Memes of the week', 'Fresh drops', 'Deep cuts', 'Chaos corner', 'Certified reposts', 'Late night', 'From the vault'];
+    const adSets = [
+      ['Sound+ kills the ads', 'Offline boards, longer clips, 3 months free', 'Open', '#c8ff2e'],
+      ['Mic check: Zephyr USB', 'Record your own clips. $69 this week.', 'Shop', '#2f353d']
+    ];
+    const groups = [];
+    for (let s = 0; s < loaded; s += 12) {
+      const gi = groups.length;
+      const ad = adSets[gi % 2];
+      groups.push({
+        title: titles[gi % titles.length],
+        kicker: gi === 0 ? 'TAP TO FIRE' : String(s + 1) + '\u2013' + Math.min(s + 12, loaded),
+        ad: this.props.showAds !== false,
+        adTitle: ad[0], adSub: ad[1], adCta: ad[2], adColor: ad[3],
+        items: lib.slice(s, Math.min(s + 12, loaded)).map((it, j) => {
+          const i = s + j;
+          const spec = { f: it.f, k: it.k, d: it.d };
+          return {
+            name: it.name, color: it.color, dur: it.dur,
+            ring: st.on === 'e' + i ? '1' : '0',
+            play: () => this.fire('e' + i, it.name, spec)
+          };
+        })
+      });
+    }
     const ex = [
       ['slow clap', 520, 'square', 0.2], ['the fridge scream', 880, 'sawtooth', 0.3],
       ['bro really said that', 300, 'triangle', 0.18], ['toaster fanfare', 660, 'square', 0.24],
@@ -621,6 +543,15 @@ class Component extends DCLogic {
       ['unearned confidence', 640, 'triangle', 0.22], ['tiny victory horn', 1100, 'square', 0.14]
     ];
     const vals = {
+      scrollRef: (el) => { this._scroll = el; },
+      groups: groups,
+      total: total,
+      loadingMore: st.loading,
+      atEnd: loaded >= total && !st.loading,
+      onScroll: (e) => {
+        const el = e.currentTarget;
+        if (el.scrollHeight - el.scrollTop - el.clientHeight < 280) this.loadMore();
+      },
       isExplore: tab === 'explore',
       isBoard: tab === 'board',
       ads: this.props.showAds !== false,
@@ -641,6 +572,11 @@ class Component extends DCLogic {
       sheetPE: st.slot === null ? 'none' : 'auto',
       slotLabel: st.slot === null ? 'PAD' : 'PAD ' + (st.slot + 1) + ' OF 8',
       closeSheet: () => this.setState({ slot: null }),
+      openImport: () => this.setState({ imp: true }),
+      closeImport: () => this.setState({ imp: false }),
+      impOp: st.imp ? '1' : '0',
+      impPE: st.imp ? 'auto' : 'none',
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
       pick: (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
         const gone = Object.assign({}, st.gone);
@@ -648,12 +584,6 @@ class Component extends DCLogic {
         this.setState({ gone: gone, slot: null });
       }
     };
-    ex.forEach((s, i) => {
-      const spec = { f: s[1], k: s[2], d: s[3] };
-      vals['pE' + i] = () => this.fire('e' + i, s[0], spec);
-      const live = st.on === 'e' + i;
-      vals['oE' + i] = live ? '1' : '0';
-    });
     ex.slice(0, 8).forEach((s, i) => {
       const spec = { f: s[1], k: s[2], d: s[3] };
       vals['pB' + i] = () => this.tapBoard(i, s[0], spec);
