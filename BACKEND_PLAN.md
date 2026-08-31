@@ -1,43 +1,35 @@
 # BACKEND_PLAN.md
 
-> **Not yet realigned to DATA_GOVERNANCE.md v2.0.** This plan is written to the
-> v1.0 pre-clearance model. Where a step here enforces a control that v2.0
-> Section 0.1 relaxed or removed (creator licensing and verification, quarantine
-> as default state, the music-detection gate, the ranking feature allowlist and
-> human publish step, Restricted Mode, the five questions), the governance
-> document wins and the step is optional. The takedown and moderation ordering
-> in v2.0 Section 12 is not optional. Ask before treating this file as current.
-
 Backend build plan for the **Soundboard iOS app** (gif + audio tiles, custom imports).
-Subordinate to `DATA_GOVERNANCE.md` and to the phase ordering in `PLAN.md`. Where this
+Subordinate to `DATA_GOVERNANCE.md` v2.0 and to the phase ordering in `PLAN.md`. Where this
 document and either of those disagree, they win.
 
 "Backend" here covers two things, because the app has two of them:
 
 - **On-device backend** - the storage, import/transcode, and playback engine layer beneath the tile grid. This is where almost all the work is.
-- **Server backend** - the catalog and revocation services the app talks to. Mostly already specified by `PLAN.md` Phases 2-4; this document specifies only the client-facing contract.
+- **Server backend** - the catalog, submission, and takedown services the app talks to. Mostly already specified by `PLAN.md` Phases 3-5; this document specifies only the client-facing contract.
 
 ---
 
-## 1. Governance position (Section 15, five questions)
+## 1. Governance position (Section 15, three questions)
 
-Answered before any design below, per `DG-AGENT-01` and the `CLAUDE.md` PR requirement.
+Answered before any design below, per `DG-AGENT-01`.
 
 | # | Question | Answer |
 |---|---|---|
-| 1 | Data class | User-imported audio: **C3** where it contains a voice recording (Section 2 lists biometric-adjacent voice records as C3), **C4** otherwise. User-imported gif/image: **C4**. Board layout and tile metadata: **C2** (relates to an identified device/user). Catalog assets: **C4**. Playback counters for catalog assets: **C1** once aggregated, **C2** as raw events. |
-| 2 | Purpose | `P-SERVE` for playback of both lanes. `P-RANK` for catalog engagement only. `P-SAFETY` for takedown propagation. Personal imports are consumed by **no** purpose beyond `P-SERVE` on the user's own device. |
-| 3 | Retention | Personal imports: until the user deletes the tile or the app; needs a new `retention_ref` (`device_local_user_content`) before any code persists them, or `P10` is breached. Catalog cache: 24 hours max without a fresh signed manifest. |
-| 4 | Who else sees it | Nobody. Personal-lane media **never leaves the device** in v1 (see 2.1). Apple is a platform processor for the app sandbox; any use of iCloud/CloudKit for this content requires a `vendors.yaml` entry first (`DG-VEND-01`, `DG-VEND-03`). |
-| 5 | Prohibited patterns | `P3` and `P5` are the live risks and are why the personal lane is local-only and non-distributing. `P7` is why import filenames are never logged (`DG-LOG-01` names upload filenames explicitly). `P12` is why the personal lane emits zero telemetry. |
+| 1 | Data class and declaration | User-recorded and user-imported media: **C4** by the v2.0 definition, stored and handled as **C3** by the choice recorded below. Board layout and tile metadata: **C2**. Catalog assets: **C4**. Playback counters: **C1**. Every one of these is declared in `governance/data-map.yaml` with a `retention_ref` before the migration that creates it merges. |
+| 2 | Purpose and third parties | `P-SERVE` for playback of both lanes. `P-RANK` and `P-PRODUCT-ANALYTICS` for the catalog lane only. `P-SAFETY` for takedown propagation. **Nobody else sees the personal lane**: it never leaves the device (`DG-ACQ-08`). Apple is a platform processor for the app sandbox; any use of iCloud or CloudKit for this content needs a `vendors.yaml` entry first (`DG-VEND-01`, `DG-VEND-03`). |
+| 3 | Anything prohibited | No. `P4` voice cloning is not built and is not proposed. `P7` is why import filenames never reach a log or a schema column. `P9` is why the hostile-media corpus is synthetic. `P10` is met by `device_local_user_content`. `P1` permits user-initiated import of a file the user already owns, which is the only ingestion route here. |
 
-**Rules governing this plan:** `DG-CLASS-01`, `DG-CLASS-02`, `DG-CLASS-03`, `DG-ACQ-01`, `DG-ACQ-03`, `DG-ACQ-06`, `DG-PURP-02`, `DG-PURP-03`, `DG-RET-01`, `DG-RET-02`, `DG-USER-01`, `DG-USER-02`, `DG-USER-04`, `DG-LOG-01`, `DG-LOG-05`, `DG-SEC-01`, `DG-SEC-04`, `DG-STOP-01` (P3, P5, P7, P10, P12).
+**A deliberate conservatism.** v2.0 no longer classes a voice recording as C3, so the personal lane could be downgraded. It is not. The blobs are already encrypted with `NSFileProtectionComplete` and never leave the device, so C3 handling costs nothing here and keeps the strictest treatment on the one lane holding a user's own voice. Recorded as a choice, not an oversight, so nobody removes it later thinking it was v1.0 residue.
 
-### Two flags raised before build, not after
+**Rules governing this plan:** `DG-CLASS-01`, `DG-CLASS-02`, `DG-CLASS-03`, `DG-ACQ-01`, `DG-ACQ-06`, `DG-ACQ-08`, `DG-PURP-02`, `DG-PURP-03`, `DG-RET-01`, `DG-RET-02`, `DG-USER-04`, `DG-USER-05`, `DG-LOG-01`, `DG-LOG-05`, `DG-SEC-01`, `DG-SEC-04`, `DG-TAKE-02`, `DG-STOP-01` (P1, P7, P9, P10).
 
-**Flag A - `DG-ACQ-01` versus custom imports.** `DG-ACQ-01` says audio enters *the system* by exactly one route: verified creator upload under license. A user importing a clip for their own board is not that route. The plan resolves this by keeping personal imports **out of the system entirely**: they are written to the app sandbox, never transmitted, never served, never ranked, never indexed, never exported. Under that constraint `DG-ACQ-01` is not engaged, because nothing enters the backend. The moment any sync, backup-to-our-servers, or sharing feature is proposed for the personal lane, `DG-ACQ-01` engages in full and that feature must go through Phase 2's licensing pipeline. This reading needs the governance owner's confirmation before Step B1 starts (`DG-AGENT-07`).
+### Two flags from v1.0, both now closed
 
-**Flag B - phase ordering.** `PLAN.md` places the mobile app at Step 5.3, gated behind Phases 0-4. That gating exists because the app would serve catalog audio. A personal-lane-only build consumes no catalog asset and no ranking output, so it is genuinely independent of those gates. Recommendation: split Step 5.3 into **5.3a (personal lane, buildable now)** and **5.3b (catalog lane, still gated behind Phase 3)**. This is a change to a binding plan and needs the governance owner to approve it, not an implementer.
+**Flag A - `DG-ACQ-01` versus custom imports. Closed by v2.0.** v1.0 said audio entered the system by exactly one route, verified creator upload under licence, which a personal import plainly was not. The plan resolved that by keeping personal imports out of the system entirely. v2.0 `DG-ACQ-01` now names four routes and two of them are user recording and user import, so the question the flag raised no longer exists. The architecture it produced is kept anyway: the two-lane split in 2.1 is good design independent of the rule that prompted it, and `DG-ACQ-08` now requires it directly.
+
+**Flag B - phase ordering. Closed by v2.0.** v1.0 gated the mobile app behind Phases 0-4 because the app would serve catalog audio. v2.0 puts the personal-lane app at `PLAN.md` Phase 2, gated behind the governance skeleton only. The catalog lane remains gated, behind `PLAN.md` Phase 3, and community submissions behind Phase 0. No approval is outstanding.
 
 ---
 
@@ -60,16 +52,16 @@ Answered before any design below, per `DG-AGENT-01` and the `CLAUDE.md` PR requi
 ```
 
 Both lanes converge on one local media store and one playback engine. They diverge on
-everything governance cares about: origin, telemetry, retention, and revocation.
+everything governance cares about: origin, telemetry, retention, and removal.
 
 | | Personal lane | Catalog lane |
 |---|---|---|
-| Origin | User's own file, recording, or gif | Phase 2/3 published asset |
-| Leaves device | Never | n/a (arrives, never returns) |
-| Telemetry | None, ever | `P-RANK` counters, `P-PRODUCT-ANALYTICS` on consent |
+| Origin | User's own file, recording, or gif | Bundled or published catalog asset |
+| Leaves device | Never (`DG-ACQ-08`) | n/a (arrives, never returns) |
+| Telemetry | None, ever | `P-RANK` counters, `P-PRODUCT-ANALYTICS`, opt-out in settings |
 | Retention | Until user deletes | 24h without a fresh manifest |
-| Revocation | n/a | Mandatory, fail closed (`DG-ACQ-06`) |
-| Restricted Mode | Open question, see 8.1 | Curated subset only (`DG-USER-02`) |
+| Removal | n/a | Mandatory, fail closed, inside the 48h takedown window (`DG-TAKE-02`) |
+| Ads | Never rendered over a personal tile | `P-ADS`, ATT-gated (`DG-USER-04`) |
 
 ### 2.2 On-device module boundaries
 
@@ -81,7 +73,7 @@ Seven modules, each independently testable, no UI types below the top layer.
 4. **AudioEngine** - `AVAudioEngine` graph, buffer cache, trigger API.
 5. **VisualEngine** - poster frames, video decode session pool, animation clock.
 6. **CatalogSync** - manifest fetch, signature check, download, purge.
-7. **GovernanceKit** - classification-aware persistence wrapper, log redaction, retention worker. Built first, per `PLAN.md` Phase 1 logic applied locally.
+7. **GovernanceKit** - classification-aware persistence wrapper, log redaction, retention worker. Built first, per `PLAN.md` Phase 1 logic applied locally. Its redactor passes pseudonymous session and device IDs through and strips direct identifiers, which is the v2.0 `DG-LOG-01` boundary.
 
 ---
 
@@ -103,8 +95,8 @@ Application Support/
 
 - Content-addressed by SHA-256 of the **transcoded output**. This dedupes identical bytes, which is what makes storing the same file twice free. It does **not** reliably dedupe a re-import of the same moment: the encoder is not byte-deterministic. Measured, six repeated extractions of one source produced six mostly-distinct digests, two colliding by chance. Making re-import free needs source-keyed dedupe, a fingerprint of the source plus the trim window, which is not built.
 - `Application Support`, not `Documents`: the user should not see raw derivative files in the Files app.
-- `NSFileProtectionComplete` on every blob (`DG-SEC-01`, and C3 voice content requires encryption at rest).
-- `isExcludedFromBackup = true` in v1. iCloud backup of C3 voice content is a vendor question that is not answered yet (Flag in 8.2).
+- `NSFileProtectionComplete` on every blob (`DG-SEC-01` requires encryption at rest for C2, C3 and C4 alike, so this holds under either classification).
+- `isExcludedFromBackup = true` in v1. iCloud backup of user media is a vendor question that is not answered yet (8.2).
 - Reference counting on `sha256`, so deleting one tile does not orphan a blob a second tile shares.
 
 ### 3.2 Schema
@@ -119,7 +111,7 @@ write an unclassified field (`DG-CLASS-01`, `DG-CLASS-02`). Mirrors `PLAN.md` St
 | `sound` | `audio_blob_id`, `video_blob_id`, `poster_blob_id` | C1 | |
 | `sound` | `catalog_asset_id`, `manifest_expires_at` | C1 | Catalog lane only, null for personal |
 | `media_blob` | `sha256`, `kind`, `bytes`, `codec`, `sample_rate`, `channels`, `width`, `height`, `fps`, `refcount` | C1 | |
-| `media_blob` | payload on disk | C3 / C4 | Class depends on lane and content, see 1. |
+| `media_blob` | payload on disk | C3 / C4 | C4 by the v2.0 definition; the personal lane keeps C3 handling by choice, see 1. |
 | `board` | `id`, `name`, `ordinal` | C2 | |
 | `board_tile` | `board_id`, `sound_id`, `row`, `col` | C2 | |
 | `import_job` | `id`, `state`, `failure_code` | C1 | `failure_code` is an enum, never a message string |
@@ -232,49 +224,66 @@ the **client contract**, because two of its requirements are easy to miss and ex
 | `GET /v1/catalog/manifest?cursor=` | `P-SERVE` | Signed, carries `expires_at` no more than 24 h out |
 | `GET /v1/catalog/assets/{id}/media` | `P-SERVE` | 302 to a short-TTL signed CDN URL |
 | `POST /v1/events` | `P-RANK`, `P-PRODUCT-ANALYTICS` | Catalog lane only, declared events only, dropped if undeclared (`DG-LOG-05`) |
+| `POST /v1/submissions` | `P-SAFETY` | Gated behind `PLAN.md` Phase 0. Writes the four-field submission record atomically with the asset (`DG-ACQ-02`) |
+| `POST /v1/reports` | `P-SAFETY` | In-app route into the takedown channel (`DG-TAKE-01`) |
 
-No endpoint is called at all before the age gate resolves, and none in Restricted Mode.
+There is no age gate at v2.0. What replaces it is narrower and enforced in a different place: no
+request carries a tracking identifier, and no SDK that reads one is initialised, before ATT
+resolves (`DG-USER-04`). Playback and catalog requests are unaffected and may run immediately.
 
-### 7.2 Revocation on the client, fail closed
+### 7.2 Removal on the client, fail closed
 
-`DG-ACQ-06` requires revocation to reach client-side prefetch within 24 hours. Polling is not
-sufficient on its own, because a device can be offline. So:
+The binding window changed at v2.0 and got shorter in the case that matters. `DG-ACQ-06` gives a
+submitter 7 days for their own removal request, but `DG-TAKE-02` gives a rights claim **48 hours**
+to reach every surface, and a surface includes a phone in a pocket with no signal. The 24-hour
+manifest expiry below was designed against the old rule and happens to sit inside the new one with
+a full day of margin, so the number stays and only its justification changes. Polling alone is not
+sufficient, because a device can be offline. So:
 
 - The manifest is signed and carries `expires_at`.
 - A catalog tile whose manifest has expired **refuses to play** and renders as unavailable. It does not play optimistically and reconcile later.
-- Manifest refresh on launch, on foreground, and every 6 hours, giving four attempts inside the 24 h window.
-- A revoked asset id in a fresh manifest triggers immediate blob deletion plus row deletion, not a soft flag (`DG-RET-04`).
+- Manifest refresh on launch, on foreground, and every 6 hours, giving four attempts inside the 24 h window and eight inside the 48 h takedown window.
+- A removed asset id in a fresh manifest triggers immediate blob deletion plus row deletion, not a soft flag (`DG-RET-04`).
 
 Personal-lane tiles are untouched by all of this and keep working offline forever. That is
 the practical payoff of the two-lane split.
 
 ### 7.3 Stack
 
-Postgres and object storage in us-only regions (`DG-VEND-04`), CDN with signed URLs,
-transcode workers in network-isolated containers (`DG-SEC-04`), secrets from a managed
-store (`DG-SEC-02`). Each of these is a `vendors.yaml` entry with an executed DPA before
-any integration code (`DG-VEND-01`, `DG-VEND-02`).
+Postgres and object storage, CDN with signed URLs, transcode workers in network-isolated
+containers (`DG-SEC-04`), secrets from a managed store (`DG-SEC-02`). v2.0 withdrew the US-only
+restriction, so any region a major provider operates is available; the region is still declared in
+the vendor entry, because the privacy notice states where data is processed (`DG-VEND-04`). Each of
+these is a `vendors.yaml` entry with a DPA before any integration code (`DG-VEND-01`, `DG-VEND-02`).
+
+Ads, analytics, attribution, and crash SDKs fall in the `DG-VEND-03` pre-approved categories, so
+they need a manifest entry rather than a review cycle. The entry is still mandatory: `P8` did not
+relax, and the App Store privacy label is generated from what is declared.
 
 ---
 
 ## 8. Open questions - answer before the phase that needs them
 
-### 8.1 Restricted Mode and personal imports (blocks Phase B0 exit)
-`DG-USER-02` gives under-13 users "curated catalogue only". A local-only personal import
-collects no personal data and transmits nothing, so it arguably belongs in Restricted Mode.
-But `DG-AGENT-07` says an unclear case defaults to no. **Escalated, not decided.** If the
-answer is no, Restricted Mode ships with the curated catalogue and the import button hidden,
-which is a UI branch, not an architecture change.
+### 8.1 Where ads render (blocks Phase B6 exit)
+`P-ADS` is approved at v2.0, which makes placement a design question rather than a governance
+one, with a single hard edge: no personalised ad to a user known to be under 13 (`P6`), and no
+tracking identifier before ATT (`DG-USER-04`). The proposal is that ads never render over or
+inside a personal-lane tile, so the lane the user filled with their own voice stays uncommercial.
+That is a product call, not a rule. **Open, needs a decision before B6.**
 
-### 8.2 iCloud backup of imported media (blocks Phase B1 exit)
-Backing up C3 voice content to iCloud makes Apple a processor for that class and needs a
-`vendors.yaml` entry. v1 sets `isExcludedFromBackup = true` and ships without cross-device
-sync. Reversing this is a governance decision plus a vendor entry, not a build flag.
+### 8.2 iCloud backup of user media (blocks Phase B1 exit)
+Backing up user media to iCloud makes Apple a processor for it and needs a `vendors.yaml` entry.
+v1 sets `isExcludedFromBackup = true` and ships without cross-device sync. Reversing it is a
+vendor entry plus a privacy-label change, not a build flag. Unchanged by v2.0.
 
-### 8.3 Board sharing
-Sharing a board containing personal imports is redistribution of unlicensed third-party
-voice content and hits `P3` head on. Not in scope. If wanted, it goes through Phase 2's
-license pipeline like any other upload, or it ships as catalog-lane-only sharing.
+### 8.3 Board sharing (unblocked by v2.0, deliberately not scheduled)
+Under v1.0 this was a hard stop: sharing a board of personal imports redistributed unlicensed
+third-party voice content and hit `P3` directly. v2.0 reclassifies the same feature as a
+community submission, `DG-ACQ-01` route (d), which is permitted under notice-and-takedown. It is
+therefore buildable, and it inherits the full Phase 4 apparatus: submission record, moderation
+gate, 48-hour takedown, strike ledger. It is not scheduled, because it would take the one lane
+that currently transmits nothing and make it a publishing surface, and `DG-ACQ-08` is a promise
+the privacy notice makes today. Scheduling it means changing that promise first.
 
 ---
 
@@ -287,8 +296,8 @@ and `python3 governance/check.py` is green at every step.
 - **B0.1** Classification-aware persistence wrapper. A write of an unclassified field raises. `DG-CLASS-01`, `DG-CLASS-02`
 - **B0.2** Log redaction at the logging library boundary, not the call site. `DG-LOG-01`, `DG-LOG-02`
 - **B0.3** `data-map.yaml` entries for every field in 3.2, including the new `device_local_user_content` retention policy. `DG-CLASS-03`, `DG-RET-01`
-- **B0.4** Age gate before any identifier is generated or any SDK initialises, plus the Restricted Mode branch. `DG-USER-01`, `DG-USER-02`, `DG-USER-04`
-- **Gate**: instrumented test proves zero network calls carrying an identifier before the gate resolves. Unit test proves an unclassified write raises and a C2 value reaching the logger is redacted. Flags A and B in Section 1 have written answers.
+- **B0.4** ATT gate: no tracking identifier read and no SDK that reads one initialised before the prompt resolves. No age gate at v2.0; the app is rated 12+ and is not child-directed. `DG-USER-04`, `DG-USER-01`
+- **Gate**: instrumented test proves zero reads of a tracking identifier before ATT resolves. Unit test proves an unclassified write raises, a C2 value reaching the logger is redacted, and a pseudonymous session ID is not. Flags A and B in Section 1 are closed, so nothing is outstanding here.
 
 ### Phase B1 - Local media store
 - **B1.1** Content-addressed blob store with refcounting, file protection, backup exclusion.
@@ -321,9 +330,16 @@ and `python3 governance/check.py` is green at every step.
 ### Phase B5 - Catalog lane (gated behind `PLAN.md` Phase 3)
 - **B5.1** Signed manifest fetch and signature verification.
 - **B5.2** Download, cache, and expiry enforcement with fail-closed playback.
-- **B5.3** Revocation purge across blobs, rows, and in-memory caches.
+- **B5.3** Removal purge across blobs, rows, and in-memory caches.
 - **B5.4** Declared-events-only telemetry, catalog lane only, personal lane silent.
-- **Gate**: timed end-to-end test. Revoke server-side, then confirm the client cannot play the asset inside 24 h, including the offline case where the manifest simply expires. Prove by network trace that a personal-lane trigger emits nothing.
+- **Gate**: timed end-to-end test. Remove server-side, then confirm the client cannot play the asset inside the 48 h takedown window, including the offline case where the manifest simply expires. Prove by network trace that a personal-lane trigger emits nothing.
+
+### Phase B6 - Monetisation SDKs (gated behind `PLAN.md` Phase 6)
+- **B6.1** ATT prompt and the initialisation ordering that depends on it, tested as ordering rather than assumed from SDK docs.
+- **B6.2** Ads and attribution SDKs, each with a `vendors.yaml` entry and a declared region.
+- **B6.3** Settings opt-outs: CCPA sale and share, plus `P-PRODUCT-ANALYTICS`.
+- **B6.4** Privacy label regenerated from `data-map.yaml` and diffed in the release PR.
+- **Gate**: binary-level SDK inventory matches `vendors.yaml` exactly, diffed from the built artifact rather than the dependency manifest. Instrumented test proves no tracking identifier is read before ATT resolves. Opting out measurably stops the sharing.
 
 ---
 
@@ -332,29 +348,29 @@ and `python3 governance/check.py` is green at every step.
 - **Fixture corpus** for hostile media, checked in, synthetic only (`P9` bars production data in tests).
 - **Latency harness** measuring tap-to-sample on device, run in CI on a device farm, failing the build on regression. This is the number the product lives or dies by.
 - **Memory ceiling test** at 120 tiles, asserted, not eyeballed.
-- **Clock-injected retention tests** so a 24 h expiry is testable in milliseconds.
-- **Network-silence test**: assert zero outbound packets attributable to a personal-lane trigger, and zero of any kind before the age gate resolves.
+- **Clock-injected retention tests** so a 24 h expiry and a 48 h takedown window are testable in milliseconds.
+- **Network-silence test**: assert zero outbound packets attributable to a personal-lane trigger (`DG-ACQ-08`), and zero reads of a tracking identifier before ATT resolves (`DG-USER-04`).
 - No flaky tests. A flaky latency test gets a wider threshold with a recorded justification or it gets fixed, never a retry loop.
 
 ---
 
 ## 11. Compliance Block (draft for the first implementing PR)
 
+Required here because the first implementing PR adds persisted fields. `DG-AGENT-06` scopes the
+block to PRs that add a persisted personal field, an analytics event, or a third-party SDK, so
+later PRs in Phases B3 and B4 will not need one.
+
 ```
 ## Compliance Block
-Data classes touched:      C1, C2, C3, C4
-Purpose IDs:               P-SERVE
-Rules applied:             DG-CLASS-01, DG-CLASS-02, DG-CLASS-03, DG-RET-01, DG-RET-04,
-                           DG-LOG-01, DG-LOG-02, DG-SEC-01, DG-SEC-04, DG-USER-01,
-                           DG-USER-02, DG-USER-04, DG-ACQ-06
-data-map.yaml updated:     yes
-Retention defined:         yes - new device_local_user_content policy
-Consent path:              not required for P-SERVE; personal lane emits no telemetry
-Third parties involved:    none in the personal lane
-Prohibited patterns check: P1-P12 reviewed. P3 and P5 addressed by keeping personal imports
-                           local-only and non-distributing. P7 addressed by omitting source
-                           filenames from schema and logs. P10 addressed by the new
-                           retention policy. P12 addressed by emitting no personal-lane events.
-Residual risk / notes:     Flag A (DG-ACQ-01 scope) and Flag B (PLAN.md 5.3 split) require
-                           the governance owner's written answer before Phase B1.
+Data classes touched:   C1, C2, C3, C4
+Purpose IDs:            P-SERVE
+Rules applied:          DG-CLASS-01, DG-CLASS-02, DG-CLASS-03, DG-RET-01, DG-RET-04,
+                        DG-LOG-01, DG-LOG-02, DG-SEC-01, DG-SEC-04, DG-ACQ-01, DG-ACQ-08
+data-map.yaml updated:  yes - device_local_user_content and device_local_board_layout
+Third parties involved: none in the personal lane
+Checks reviewed:        P1-P12 reviewed, none prohibited at v2.0. P1 is satisfied because the
+                        only ingestion route is a user-initiated import of a file the user
+                        already owns. P7 by omitting source filenames from schema and logs.
+                        P9 by a synthetic-only fixture corpus. P10 by the two retention
+                        policies above.
 ```

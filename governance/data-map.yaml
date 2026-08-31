@@ -85,8 +85,9 @@ fields:
     encrypted_at_rest: false
     exportable: true
     deletable: true
-  # Clip audio can carry a voice, which Section 2 classes as C3. Classified by
-  # what the field can hold, not by what a given import happens to contain.
+  # v2.0 no longer classes a voice recording as C3, so C4 would be defensible
+  # here. Kept at C3 deliberately: the blob is encrypted and never leaves the
+  # device, so the stricter class costs nothing. See BACKEND_PLAN.md Section 1.
   - store: media_blob
     field: audio_payload
     class: C3
