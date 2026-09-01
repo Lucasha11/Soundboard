@@ -26,8 +26,23 @@ targets:
         excludes:
           - project.yml
           - README.md
+          - UITests
     info:
       path: Info.plist
+      # XcodeGen generates Info.plist from this block, so these keys belong
+      # here - editing the generated file by hand is overwritten on the next
+      # `xcodegen generate`.
+      properties:
+        # Without a launch screen, iOS runs the app in legacy compatibility
+        # mode: a 320x480 canvas letterboxed with black bars, which pushed the
+        # tab bar below the visible area on every modern device. An empty
+        # UILaunchScreen is the modern declaration and opts the app into the
+        # device's real screen size.
+        UILaunchScreen: {}
+        # The design is an iPhone-portrait soundboard and the grid metrics
+        # assume it.
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.soundboard.app
@@ -41,3 +56,31 @@ targets:
         product: SoundboardUI
       - package: SoundboardKit
         product: SoundLibrary
+
+  SoundboardUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.soundboard.uitests
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Soundboard
+    dependencies:
+      - target: Soundboard
+
+schemes:
+  Soundboard:
+    build:
+      targets:
+        Soundboard: all
+        SoundboardUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SoundboardUITests

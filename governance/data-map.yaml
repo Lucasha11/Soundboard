@@ -22,6 +22,11 @@ retention_policies:
   # P10 still requires a declared policy, and deletion is immediate and hard.
   device_local_user_content:      { days: 0,     basis: on_user_delete }
   device_local_board_layout:      { days: 0,     basis: on_user_delete }
+  # DG-RET-01, DG-RET-04. The completion record each retention sweep writes, so
+  # "deletion ran" is provable rather than assumed. Holds counts and policy
+  # names only, never an item's contents, so it is C1 throughout - and it is
+  # swept by the same worker that writes it.
+  device_local_retention_audit:   { days: 90,    basis: rolling }
 
 # ---- Persisted fields ----------------------------------------------------
 # store: logical table or collection
@@ -167,6 +172,41 @@ fields:
     class: C1
     purpose_ids: [P-SERVE]
     retention_ref: application_logs
+    encrypted_at_rest: false
+    exportable: false
+    deletable: true
+
+  # DG-RET-01, DG-RET-04: the deletion audit trail. Every field is a count, a
+  # timestamp or a policy name; nothing here describes the items deleted.
+  - store: retention_run
+    field: id
+    class: C1
+    purpose_ids: [P-RETENTION]
+    retention_ref: device_local_retention_audit
+    encrypted_at_rest: false
+    exportable: false
+    deletable: true
+  - store: retention_run
+    field: ran_at
+    class: C1
+    purpose_ids: [P-RETENTION]
+    retention_ref: device_local_retention_audit
+    encrypted_at_rest: false
+    exportable: false
+    deletable: true
+  - store: retention_run
+    field: policy_ref
+    class: C1
+    purpose_ids: [P-RETENTION]
+    retention_ref: device_local_retention_audit
+    encrypted_at_rest: false
+    exportable: false
+    deletable: true
+  - store: retention_run
+    field: deleted_count
+    class: C1
+    purpose_ids: [P-RETENTION]
+    retention_ref: device_local_retention_audit
     encrypted_at_rest: false
     exportable: false
     deletable: true

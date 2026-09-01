@@ -47,7 +47,9 @@ public enum RenderMode: Equatable {
 /// 2. Buffers for the visible board are preloaded, so a trigger is a dictionary
 ///    lookup plus `scheduleBuffer`, with no file I/O on the path.
 /// 3. Fire on touch-down. Gesture recognition delay is audible here.
-public final class PlaybackEngine {
+/// Safe to hand across threads: every mutable field is guarded by `lock`, and
+/// the warm-up path deliberately calls `prepare()` off the main thread.
+public final class PlaybackEngine: @unchecked Sendable {
     public let cache: BufferCache
 
     private let engine = AVAudioEngine()

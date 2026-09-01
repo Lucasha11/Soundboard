@@ -227,9 +227,4 @@ enum EndToEndChecks {
     private static func byteCount(_ url: URL) throws -> Int {
         (try url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
     }
-
-    private static func require<T>(_ value: T?) throws -> T {
-        guard let value else { throw ImportFailureCode.encodeFailed }
-        return value
-    }
 }

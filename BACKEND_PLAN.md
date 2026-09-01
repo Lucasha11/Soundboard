@@ -188,6 +188,7 @@ A soundboard that feels laggy is a broken soundboard.
 - **Preloaded `AVAudioPCMBuffer`s** for every tile in the visible board, so a trigger is `scheduleBuffer` + `play` with no file I/O.
 - **Fire on touch-down**, not touch-up, and not on gesture recognition. Every millisecond of recogniser delay is audible here.
 - **Retrigger policy**: overlap by default (tap twice fast, hear two voices), with a per-sound "restart instead" option. Overlap is what people expect from a soundboard.
+- **Two defects found by running this end to end (2026-09-01).** The app never wired an audio session at all - `PlaybackEngine` defaults to `NullAudioSession`, so the category and buffer duration below were specified and never applied - and the graph was built synchronously during composition, blocking launch on IPC with the audio server. Both fixed. A third is environmental and recorded rather than worked around: `AVAudioEngine` output-node creation intermittently aborts in the simulator with `Cleanup: RPC timeout`, which an `abort()` inside AudioToolbox makes uncatchable. UI tests pass `--uitest-silent-audio`, since they assert what is on screen; the engine itself is covered by the offline render mode in `PlaybackChecks`.
 - `AVAudioSession` category `.playback`, `.mixWithOthers` off by default so the app owns the output, preferred IO buffer duration 5 ms. Handle interruption, route change, and media services reset by rebuilding the graph and re-priming buffers.
 - **Audio/visual sync**: both are triggered from the same touch event; the video layer's start is scheduled against the audio node's `lastRenderTime` so animation and sound line up rather than drifting by a frame or two.
 
@@ -298,6 +299,7 @@ and `python3 governance/check.py` is green at every step.
 - **B0.3** `data-map.yaml` entries for every field in 3.2, including the new `device_local_user_content` retention policy. `DG-CLASS-03`, `DG-RET-01`
 - **B0.4** ATT gate: no tracking identifier read and no SDK that reads one initialised before the prompt resolves. No age gate at v2.0; the app is rated 12+ and is not child-directed. `DG-USER-04`, `DG-USER-01`
 - **Gate**: instrumented test proves zero reads of a tracking identifier before ATT resolves. Unit test proves an unclassified write raises, a C2 value reaching the logger is redacted, and a pseudonymous session ID is not. Flags A and B in Section 1 are closed, so nothing is outstanding here.
+- **Gate met 2026-09-01.** `TrackingAndLaunchUITests` asserts an empty ledger on a simulator, before and after the app is used; `TrackingChecks` proves the instrument catches a real read and a real SDK initialisation, so an empty ledger cannot mean a broken instrument; `GovernanceChecks` covers the persistence guard and the redactor, and `SessionIdentifier` covers the pseudonymous half. `IdentifierVault` is the chokepoint - it refuses before ATT resolves and under any status but `.authorized`, and never calls the platform when refusing, so a refused read generates no identifier.
 
 ### Phase B1 - Local media store
 - **B1.1** Content-addressed blob store with refcounting, file protection, backup exclusion.
@@ -305,6 +307,7 @@ and `python3 governance/check.py` is green at every step.
 - **B1.3** Launch sweeper: orphaned blobs deleted, rows pointing at missing files repaired.
 - **B1.4** Retention worker running against an empty store from day one, mirroring `PLAN.md` Step 1.3.
 - **Gate**: kill the process at every point in a commit and prove no metadata row ever references a missing blob. Deleting a tile decrements refcount and deletes the blob only at zero.
+- **Gate met 2026-09-01.** A process cannot be killed mid-call from a test, but only the blobs and `catalogue.json` are durable, so the container states a kill can produce are enumerable. `CrashSafetyChecks` replays all six and asserts the invariant after each. `RetentionChecks` covers B1.4, including a seeded row past its TTL being hard-deleted with a completion record.
 
 ### Phase B2 - Import pipeline
 - **B2.1** Verification gate and caps (4.1), with a malformed-input fixture corpus: truncated gifs, gifs with absurd frame counts, audio with lying headers, zip bombs renamed to `.m4a`.

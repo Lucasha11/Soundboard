@@ -53,6 +53,27 @@ public final class SoundboardController {
         try playback.prepare()
     }
 
+    /// Brings the audio graph up without blocking launch.
+    ///
+    /// `prepare()` talks to the audio server over IPC. Doing that synchronously
+    /// during composition holds up the first frame, and when the machine is
+    /// loaded - a second app instance still tearing its audio unit down, say -
+    /// that RPC can time out. AudioToolbox reports a timed-out RPC by calling
+    /// `abort()`, not by throwing, so `try?` around it buys nothing: the
+    /// process dies. Moving the call off the main thread keeps launch
+    /// responsive and keeps the app off that contention window.
+    ///
+    /// The engine is still up long before it is needed. `BACKEND_PLAN.md`
+    /// Section 5 forbids starting an engine on tap, and this does not: the user
+    /// has to see the grid before they can hit a tile, which is orders of
+    /// magnitude longer than the warm-up takes.
+    public func warmUp() {
+        let playback = self.playback
+        Task.detached(priority: .userInitiated) {
+            try? playback.prepare()
+        }
+    }
+
     /// Decodes posters and preloads audio for a page of tiles. Driven by the
     /// scroll position: the visible page plus one either side.
     @discardableResult

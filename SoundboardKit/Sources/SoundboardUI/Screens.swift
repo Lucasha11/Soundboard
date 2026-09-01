@@ -24,7 +24,10 @@ struct ExploreView: View {
                         )
                         grid(section)
                         if model.showAds {
-                            ExploreAdCard().padding(.top, 14)
+                            ExploreAdCard()
+                                .padding(.top, 14)
+                                .accessibilityElement(children: .contain)
+                                .accessibilityIdentifier(AccessibilityID.exploreAdCard)
                         }
                     }
                 }
@@ -33,6 +36,12 @@ struct ExploreView: View {
                 .padding(.bottom, 16)
             }
         }
+        // A plain VStack does not collapse into one accessibility element, so
+        // without `.contain` the identifier below leaks onto every descendant
+        // instead of naming this container - `.contain` is what makes
+        // `app.otherElements[...]` actually find it in a UI test.
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(AccessibilityID.exploreRoot)
     }
 
     private var header: some View {
@@ -143,6 +152,8 @@ struct BoardView: View {
             VStack(alignment: .leading, spacing: 0) {
                 if model.showAds {
                     BannerAdView(title: "Boards without ads", callToAction: "Try Sound+", ctaIsAccent: true)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier(AccessibilityID.boardBannerAdTop)
                 }
 
                 HStack(alignment: .lastTextBaseline, spacing: 10) {
@@ -163,6 +174,7 @@ struct BoardView: View {
                         .overlay { Capsule().strokeBorder(DS.Colors.borderStrong, lineWidth: 1) }
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier(AccessibilityID.boardEditButton)
                 }
                 .padding(.top, 14)
 
@@ -189,6 +201,10 @@ struct BoardView: View {
                         poster: tile.flatMap { poster($0.id) },
                         onTap: { model.tapPad(index) }
                     )
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(tile?.title ?? "Empty pad \(index + 1)")
+                    .accessibilityIdentifier(AccessibilityID.boardPad(index))
+                    .accessibilityAddTraits(.isButton)
                 }
             }
             .padding(.horizontal, DS.Metrics.screenPadding)
@@ -199,8 +215,12 @@ struct BoardView: View {
                 BannerAdView(title: "Zephyr USB mic, $69", callToAction: "Shop", ctaIsAccent: false)
                     .padding(.horizontal, DS.Metrics.screenPadding)
                     .padding(.bottom, 8)
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier(AccessibilityID.boardBannerAdBottom)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(AccessibilityID.boardRoot)
     }
 }
 
@@ -290,6 +310,8 @@ struct FillPadSheet: View {
                         .strokeBorder(DS.Colors.borderDashed, style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
                 }
                 .padding(.top, 12)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier(AccessibilityID.boardPersonalImportRow)
             }
             .padding(.horizontal, DS.Metrics.screenPadding)
             .padding(.top, 12)
@@ -297,6 +319,8 @@ struct FillPadSheet: View {
             .background(DS.Colors.surface)
             .clipShape(UnevenRoundedRectangle(topLeadingRadius: 16, topTrailingRadius: 16))
             .overlay(alignment: .top) { DS.Colors.borderStrong.frame(height: 1) }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(AccessibilityID.fillPadSheet)
         }
     }
 }
@@ -345,5 +369,6 @@ public struct SoundboardRootView: View {
         .animation(.easeInOut(duration: DS.Metrics.sheetFade), value: model.isSheetOpen)
         .foregroundStyle(DS.Colors.text)
         .preferredColorScheme(.dark)
+        .publishingTrackingLedger()
     }
 }

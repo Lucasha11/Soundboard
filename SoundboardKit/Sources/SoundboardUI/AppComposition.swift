@@ -15,16 +15,50 @@ public final class SoundboardComposition: ObservableObject {
     public let posters: PosterProvider
     public let model: BoardModel
 
-    /// - Parameter root: the app container. On device this is Application
-    ///   Support, which is not user-visible in Files and is excluded from
-    ///   backup by the blob store.
-    public init(root: URL, showAds: Bool = true) throws {
+    /// The scheduled deleter, run once per launch. `PLAN.md` Step 1.3 wants it
+    /// alive from day one, against a store that is mostly empty.
+    private let retention: RetentionWorker
+
+    /// Non-nil if the launch sweep failed. A failed sweep is a compliance
+    /// problem, not a reason to refuse the user their soundboard, so it is
+    /// surfaced rather than thrown - and it is never swallowed, which is what
+    /// `try?` here would amount to.
+    public private(set) var retentionFailure: String?
+
+    /// - Parameters:
+    ///   - root: the app container. On device this is Application Support,
+    ///     which is not user-visible in Files and is excluded from backup by
+    ///     the blob store.
+    ///   - showAds: `DG-USER-03` permits advertising at v2.0, subject to ATT
+    ///     and the CCPA opt-out. There is no age bracket to consult: v2.0
+    ///     removed the age gate and the app is rated 12+ (`DG-USER-01`).
+    ///   - warmsAudio: brings the `AVAudioEngine` graph up at launch. UI tests
+    ///     turn this off: they assert what is on screen, and bringing up
+    ///     AURemoteIO makes them depend on the simulator's audio daemon
+    ///     answering promptly, which is a dependency none of them need and a
+    ///     source of flakiness that has nothing to do with what they check.
+    public init(
+        root: URL,
+        showAds: Bool = true,
+        warmsAudio: Bool = true
+    ) throws {
         let library = try SoundLibrary(root: root)
         // Anything left by an interrupted import goes at launch.
         _ = try? library.sweep()
 
+        let retention = RetentionWorker(auditURL: root.appendingPathComponent("retention_audit.json"))
+        var retentionFailure: String?
+        do {
+            try retention.run()
+        } catch {
+            retentionFailure = RedactingLogger.scrubbedForDisplay(String(describing: error))
+        }
+
         let resolver = LibraryMediaResolver(library: library)
-        let controller = SoundboardController(resolver: resolver)
+        let controller = SoundboardController(
+            playback: PlaybackEngine(session: Self.audioSession()),
+            resolver: resolver
+        )
         let posters = PosterProvider(resolver: resolver)
 
         let tiles = Self.tiles(from: library)
@@ -38,8 +72,10 @@ public final class SoundboardComposition: ObservableObject {
         self.controller = controller
         self.posters = posters
         self.model = model
+        self.retention = retention
+        self.retentionFailure = retentionFailure
 
-        try? controller.prepare()
+        if warmsAudio { controller.warmUp() }
         controller.preload(tiles)
         posters.load(tiles)
     }
@@ -78,9 +114,33 @@ public final class SoundboardComposition: ObservableObject {
         return stored
     }
 
+    /// Every retention sweep this container has recorded. `PLAN.md` Phase 7's
+    /// quarterly retention verification reads this.
+    public func retentionAuditTrail() -> [RetentionRun] {
+        retention.auditTrail()
+    }
+
     public func handleMemoryPressure() {
         controller.handleMemoryPressure()
         posters.handleMemoryPressure()
+    }
+
+    /// The audio session the engine runs under.
+    ///
+    /// `PlaybackEngine` defaults to `NullAudioSession`, which is right for
+    /// checks and for macOS but wrong for the app: on iOS, bringing up
+    /// `AVAudioEngine` without an active session leaves `AURemoteIO`
+    /// negotiating with the audio server on no agreed format, and that call
+    /// times out - which AudioToolbox reports by aborting the process. It is
+    /// also what `BACKEND_PLAN.md` Section 5 asks for and was not getting:
+    /// `.playback` so a tile is audible with the ringer switch off, and a 5 ms
+    /// IO buffer, which is a third of the entire tap-to-sound budget.
+    private static func audioSession() -> AudioSessionControlling {
+        #if os(iOS)
+        return SystemAudioSession()
+        #else
+        return NullAudioSession()
+        #endif
     }
 
     /// Application Support, created if absent. The container the app ships with.

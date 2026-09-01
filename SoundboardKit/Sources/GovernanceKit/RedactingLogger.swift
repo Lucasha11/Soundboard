@@ -52,6 +52,16 @@ public final class RedactingLogger {
         return scrubFreeText(value.raw)
     }
 
+    /// Strips the same shapes from text that is about to be shown on screen.
+    ///
+    /// A user-visible failure message is not a log line, but it leaks the same
+    /// way: it gets photographed into a support ticket and pasted into a bug
+    /// report. Underlying file-system errors carry container paths, so they go
+    /// through the same scrubber before they are displayed.
+    public static func scrubbedForDisplay(_ raw: String) -> String {
+        scrubFreeText(raw)
+    }
+
     /// Second line of defence for values a caller mislabelled as C1. Catches the
     /// shapes that most often turn out to be personal: contact strings, file
     /// paths from a user's device, and network addresses.

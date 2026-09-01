@@ -1,4 +1,5 @@
 import Foundation
+import GovernanceKit
 
 /// Minimal assertion harness.
 ///
@@ -9,6 +10,14 @@ enum Check {
     nonisolated(unsafe) static var failures: [String] = []
     nonisolated(unsafe) static var passes = 0
     nonisolated(unsafe) static var currentSuite = ""
+
+    /// Clears the tally so a second run in the same process starts clean.
+    /// The executable runs once and exits; a test host may not.
+    static func reset() {
+        failures = []
+        passes = 0
+        currentSuite = ""
+    }
 
     static func suite(_ name: String, _ body: () throws -> Void) {
         currentSuite = name
@@ -75,6 +84,13 @@ enum Check {
         }
         exit(0)
     }
+}
+
+/// Unwraps or throws, so a missing value fails the suite with a message
+/// instead of trapping and taking the whole run down with it.
+func require<T>(_ value: T?) throws -> T {
+    guard let value else { throw ImportFailureCode.unreadableFile }
+    return value
 }
 
 /// Scratch directory for checks that touch the file system. Never the user's
