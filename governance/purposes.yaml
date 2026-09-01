@@ -75,3 +75,10 @@ purposes:
     consent_required: true
     data_classes: [C2]
     retention_ref: account_record
+
+  - id: P-RETENTION
+    description: Prove that scheduled deletion ran, by keeping a completion record of each retention sweep (DG-RET-01, DG-RET-04)
+    lawful_basis: legal_obligation
+    consent_required: false
+    data_classes: [C1]
+    retention_ref: device_local_retention_audit

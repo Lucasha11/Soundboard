@@ -33,6 +33,13 @@ struct TabBarView: View {
         .padding(.top, 10)
         .contentShape(Rectangle())
         .onTapGesture { select(target) }
+        // Without `.ignore` the icon and the label each keep their own
+        // accessibility identity, so a UI test query for one identifier
+        // matches both of them instead of one button.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityIdentifier(target == .explore ? AccessibilityID.tabBarExplore : AccessibilityID.tabBarBoard)
+        .accessibilityAddTraits(.isButton)
     }
 }
 

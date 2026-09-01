@@ -102,9 +102,4 @@ enum LibraryChecks {
             }
         }
     }
-
-    private static func require<T>(_ value: T?) throws -> T {
-        guard let value else { throw ImportFailureCode.unreadableFile }
-        return value
-    }
 }

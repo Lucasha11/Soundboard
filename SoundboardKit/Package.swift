@@ -31,9 +31,17 @@ let package = Package(
             dependencies: ["GovernanceKit", "PlaybackEngine", "VisualEngine", "SoundLibrary"],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
-        // Gate checks run as an executable because XCTest and Swift Testing both
-        // require a full Xcode install, which this environment does not have.
-        // Move to a testTarget once Xcode is present; the assertions port directly.
+        // The gate suites live in a library target so that two entry points can
+        // share one copy of them: the `soundboard-checks` executable, which
+        // needs no test host and prints a line per assertion, and the
+        // `SoundboardKitTests` XCTest target, which gives `swift test` and
+        // Xcode's test navigator the same coverage. Duplicating the assertions
+        // across both would guarantee they drift.
+        .target(
+            name: "CheckSuites",
+            dependencies: ["GovernanceKit", "MediaStore", "ImportPipeline", "PlaybackEngine", "VisualEngine", "SoundLibrary", "SoundboardUI"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
         .executableTarget(
             name: "UAT",
             dependencies: ["GovernanceKit", "MediaStore", "ImportPipeline", "PlaybackEngine", "VisualEngine", "SoundLibrary", "SoundboardUI"],
@@ -41,7 +49,12 @@ let package = Package(
         ),
         .executableTarget(
             name: "Checks",
-            dependencies: ["GovernanceKit", "MediaStore", "ImportPipeline", "PlaybackEngine", "VisualEngine", "SoundLibrary", "SoundboardUI"],
+            dependencies: ["CheckSuites"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
+        .testTarget(
+            name: "SoundboardKitTests",
+            dependencies: ["CheckSuites"],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
     ]

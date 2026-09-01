@@ -44,6 +44,15 @@ public enum Purpose: String, Codable, Sendable, CaseIterable {
     case payment = "P-PAYMENT"
     case productAnalytics = "P-PRODUCT-ANALYTICS"
     case marketing = "P-MARKETING"
+    /// v2.0 additions. `P-ADS` is permitted to users 13 and over subject to
+    /// ATT and the CCPA opt-out (`DG-USER-03`); `P-ATTRIB` is install
+    /// attribution. Neither is implemented yet - they are here because the
+    /// enum is the closed mirror of `purposes.yaml`.
+    case ads = "P-ADS"
+    case attribution = "P-ATTRIB"
+    /// `DG-RET-01`, `DG-RET-04`: keep a completion record proving a scheduled
+    /// deletion actually ran. Legal obligation, not a business use.
+    case retention = "P-RETENTION"
 }
 
 /// A retention policy key from `data-map.yaml` `retention_policies`.
@@ -51,6 +60,7 @@ public enum Purpose: String, Codable, Sendable, CaseIterable {
 public enum RetentionRef: String, Codable, Sendable, CaseIterable {
     case deviceLocalUserContent = "device_local_user_content"
     case deviceLocalBoardLayout = "device_local_board_layout"
+    case deviceLocalRetentionAudit = "device_local_retention_audit"
     case audioAsset = "audio_asset"
     case applicationLogs = "application_logs"
 }
