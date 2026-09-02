@@ -1,5 +1,6 @@
 import Foundation
 import GovernanceKit
+import ImportPipeline
 import PlaybackEngine
 import SoundLibrary
 import VisualEngine
@@ -82,6 +83,35 @@ public final class SoundboardComposition: ObservableObject {
         // Scrolling onto a new page moves the horizon. Weak, because the model
         // is owned by this composition and a strong capture would keep it
         // alive forever.
+        // The picker hands back a URL outside the app's container, so access
+        // has to be claimed and released around the read. Without the claim
+        // the read fails on device with a permission error that looks exactly
+        // like a corrupt file.
+        model.onImport = { [weak self] audio, visual in
+            guard let self else { return "Import is not available." }
+            let audioScoped = audio.startAccessingSecurityScopedResource()
+            let visualScoped = visual.startAccessingSecurityScopedResource()
+            defer {
+                if audioScoped { audio.stopAccessingSecurityScopedResource() }
+                if visualScoped { visual.stopAccessingSecurityScopedResource() }
+            }
+            do {
+                _ = try await self.library.importClip(
+                    audio: audio,
+                    visual: visual,
+                    start: 0,
+                    duration: ImportCaps.standard.maxClipDuration,
+                    title: Self.title(forVisual: visual)
+                )
+                self.refresh()
+                return nil
+            } catch let code as ImportFailureCode {
+                return code.userMessage
+            } catch {
+                return ImportFailureCode.decodeFailed.userMessage
+            }
+        }
+
         model.onVisiblePageChange = { [weak self] page in
             guard let self else { return }
             self.loadHorizon(self.model.catalogue, visiblePage: page)
@@ -139,6 +169,20 @@ public final class SoundboardComposition: ObservableObject {
     /// quarterly retention verification reads this.
     public func retentionAuditTrail() -> [RetentionRun] {
         retention.auditTrail()
+    }
+
+    /// A first title for the new tile, taken from the picture's filename.
+    ///
+    /// The filename is used *here and nowhere else*: it becomes a title the
+    /// user can see and edit, and it is never persisted as a source filename
+    /// nor logged. `DG-LOG-01` names upload filenames explicitly, and
+    /// `import_job` has no column for one.
+    private static func title(forVisual url: URL) -> String {
+        let stem = url.deletingPathExtension().lastPathComponent
+            .replacingOccurrences(of: "-", with: " ")
+            .replacingOccurrences(of: "_", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return stem.isEmpty ? "new sound" : String(stem.prefix(24))
     }
 
     /// The decoder for a firing tile, or nil while it shows its poster.

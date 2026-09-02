@@ -23,6 +23,7 @@ public enum AccessibilityID {
     public static let boardBannerAdBottom = "board.bannerAd.bottom"
     public static let boardPersonalImportRow = "board.personalImportRow"
     public static let boardEditButton = "board.editButton"
+    public static let importFailureMessage = "board.importFailure"
     public static let fillPadSheet = "board.fillPadSheet"
 
     /// One identifier per pad, so a UI test can address a specific slot rather

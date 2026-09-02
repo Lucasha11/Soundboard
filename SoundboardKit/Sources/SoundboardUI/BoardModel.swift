@@ -69,6 +69,31 @@ public final class BoardModel: ObservableObject {
     /// built; the view layer still never talks to the engines directly.
     public var onVisiblePageChange: (Int) -> Void
 
+    /// Where the two-file import has got to.
+    ///
+    /// The flow is two picks, not one: a user pairing a sound with a gif has
+    /// two files, and the sheet has to hold the first while it asks for the
+    /// second. Modelled here rather than in the view so the ordering, the
+    /// cancel paths and the failure message are testable without a simulator.
+    public enum ImportStage: Equatable {
+        case idle
+        /// Asking for the sound.
+        case pickingAudio
+        /// Sound chosen, asking for the picture.
+        case pickingVisual(audio: URL)
+        /// Both chosen, the pipeline is working.
+        case importing
+        /// Refused, with a message the user can act on. Never decoder text
+        /// (`DG-LOG-01`).
+        case failed(String)
+    }
+
+    @Published public private(set) var importStage: ImportStage = .idle
+
+    /// Runs the paired import. Injected, so the view layer never touches the
+    /// library and the model stays testable.
+    public var onImport: (URL, URL) async -> String? = { _, _ in "Import is not available." }
+
     /// The page the user is looking at. Drives which tiles stay in memory
     /// (`BACKEND_PLAN.md` Section 6).
     public private(set) var visiblePage = 0
@@ -87,6 +112,66 @@ public final class BoardModel: ObservableObject {
         self.tab = startTab
         self.onFire = onFire
         self.onVisiblePageChange = onVisiblePageChange
+    }
+
+    // MARK: - Import flow
+
+    /// Starts the two-file import from the fill sheet.
+    public func beginImport() {
+        importStage = .pickingAudio
+    }
+
+    /// The user picked a sound. Ask for the picture next.
+    public func pickedAudio(_ url: URL) {
+        importStage = .pickingVisual(audio: url)
+    }
+
+    /// The user picked a picture, so both halves are in hand.
+    public func pickedVisual(_ url: URL) {
+        guard case let .pickingVisual(audio) = importStage else {
+            // A visual arriving without a sound means the flow was cancelled
+            // or restarted underneath us. Dropping it is right: importing a
+            // picture with no sound would make a silent tile.
+            importStage = .idle
+            return
+        }
+        importStage = .importing
+        Task { [onImport] in
+            let failure = await onImport(audio, url)
+            await MainActor.run {
+                if let failure {
+                    self.importStage = .failed(failure)
+                } else {
+                    self.importStage = .idle
+                    self.closeSheet()
+                }
+            }
+        }
+    }
+
+    /// The user backed out of either picker.
+    public func cancelImport() {
+        importStage = .idle
+    }
+
+    /// Dismisses a failure message without losing the sheet.
+    public func acknowledgeImportFailure() {
+        if case .failed = importStage { importStage = .idle }
+    }
+
+    public var isPickingAudio: Bool {
+        if case .pickingAudio = importStage { return true }
+        return false
+    }
+
+    public var isPickingVisual: Bool {
+        if case .pickingVisual = importStage { return true }
+        return false
+    }
+
+    public var importFailureMessage: String? {
+        if case let .failed(message) = importStage { return message }
+        return nil
     }
 
     /// Reported by each tile as it comes on screen.

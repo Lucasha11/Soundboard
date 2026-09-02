@@ -20,6 +20,7 @@ enum AccessibilityID {
     static let boardBannerAdBottom = "board.bannerAd.bottom"
     static let boardPersonalImportRow = "board.personalImportRow"
     static let boardEditButton = "board.editButton"
+    static let importFailureMessage = "board.importFailure"
     static let fillPadSheet = "board.fillPadSheet"
     static func boardPad(_ index: Int) -> String { "board.pad.\(index)" }
 }

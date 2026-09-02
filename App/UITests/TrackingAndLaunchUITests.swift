@@ -119,9 +119,39 @@ final class TrackingAndLaunchUITests: XCTestCase {
             "tapping an empty pad should open the fill sheet"
         )
         XCTAssertTrue(
-            app.otherElements[AccessibilityID.boardPersonalImportRow].waitForExistence(timeout: 5),
+            app.buttons[AccessibilityID.boardPersonalImportRow].waitForExistence(timeout: 5),
             "DG-USER-02 was relaxed, so nothing hides the personal-import entry point"
         )
+    }
+
+    /// Tapping the import row presents the system file picker.
+    ///
+    /// The picker runs out of process, so this asserts on the app going
+    /// inactive with a system sheet over it rather than on the picker's own
+    /// contents - which is the observable part, and the part that regressed to
+    /// nothing when the row was decorative.
+    func testImportRowPresentsTheFilePicker() {
+        let app = launch(observingTracking: false)
+        app.buttons[AccessibilityID.tabBarBoard].tap()
+        XCTAssertTrue(app.otherElements[AccessibilityID.boardRoot].waitForExistence(timeout: 10))
+
+        app.buttons[AccessibilityID.boardEditButton].tap()
+        let pad = app.buttons[AccessibilityID.boardPad(0)]
+        XCTAssertTrue(pad.waitForExistence(timeout: 5))
+        pad.tap()
+        pad.tap()
+
+        // A button, not a container: the row carries `.isButton`, which is
+        // what it is and what VoiceOver needs to hear.
+        let row = app.buttons[AccessibilityID.boardPersonalImportRow]
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "the fill sheet should offer the import row")
+        row.tap()
+
+        // The document picker is a separate process presented over the app.
+        let picker = XCUIApplication(bundleIdentifier: "com.apple.DocumentsApp")
+        let appeared = picker.wait(for: .runningForeground, timeout: 10)
+            || app.navigationBars.firstMatch.waitForExistence(timeout: 5)
+        XCTAssertTrue(appeared, "tapping the import row should present a file picker")
     }
 
     /// The probe is test-only scaffolding. A production launch must not carry
