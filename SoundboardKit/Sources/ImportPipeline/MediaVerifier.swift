@@ -86,11 +86,20 @@ public struct MediaVerifier {
 
     /// A GIF header is cheap to lie about, so the two fields that drive memory
     /// use are checked before the decoder is handed the file: canvas size and
-    /// how many image descriptors the file actually contains. This is what stops
-    /// a small file from expanding into an enormous decode.
+    /// how many frames the file actually contains. This is what stops a small
+    /// file from expanding into an enormous decode.
+    ///
+    /// The frame count is a real block walk, not a scan for the `0x2C`
+    /// separator byte. Counting bytes was the obvious implementation and it is
+    /// badly wrong: `0x2C` is a comma, and it occurs constantly inside LZW
+    /// pixel data. An ordinary 12-frame 220x294 gif scans as 1146 "frames" and
+    /// is refused as hostile - which would have rejected most real gifs a user
+    /// tried to import, while a genuinely malicious file could still hide its
+    /// frame count below the cap. Walking the block structure counts frames,
+    /// and only frames.
     private func verifyGIFStructure(_ data: Data) throws {
         let bytes = [UInt8](data)
-        guard bytes.count >= 10 else { throw ImportFailureCode.unreadableFile }
+        guard bytes.count >= 13 else { throw ImportFailureCode.unreadableFile }
 
         let width = Int(bytes[6]) | Int(bytes[7]) << 8
         let height = Int(bytes[8]) | Int(bytes[9]) << 8
@@ -99,12 +108,52 @@ public struct MediaVerifier {
             throw ImportFailureCode.dimensionsTooLarge
         }
 
-        // Image separator byte. Counting descriptors is a linear scan and gives
-        // a hard upper bound on frames without decoding any of them.
+        var cursor = 13
+        // Global colour table, if the packed field says one is present.
+        if bytes[10] & 0x80 != 0 {
+            cursor += 3 * (1 << ((Int(bytes[10]) & 0x07) + 1))
+        }
+
         var frames = 0
-        for byte in bytes where byte == 0x2C {
-            frames += 1
-            if frames > caps.maxFrameCount { throw ImportFailureCode.frameCountTooHigh }
+        // Every read below is bounds-checked and the cursor only moves
+        // forward, so a truncated or malformed file ends the walk rather than
+        // reading past the buffer or spinning (`DG-SEC-04`).
+        walk: while cursor < bytes.count {
+            switch bytes[cursor] {
+            case 0x3B:                      // trailer
+                break walk
+            case 0x21:                      // extension: skip its sub-blocks
+                cursor += 2
+                cursor = try Self.skipSubBlocks(bytes, from: cursor)
+            case 0x2C:                      // image descriptor: one real frame
+                frames += 1
+                if frames > caps.maxFrameCount { throw ImportFailureCode.frameCountTooHigh }
+                cursor += 9
+                guard cursor < bytes.count else { throw ImportFailureCode.unreadableFile }
+                let packed = bytes[cursor]
+                cursor += 1
+                if packed & 0x80 != 0 {     // local colour table
+                    cursor += 3 * (1 << ((Int(packed) & 0x07) + 1))
+                }
+                cursor += 1                 // LZW minimum code size
+                cursor = try Self.skipSubBlocks(bytes, from: cursor)
+            default:
+                // Not a block boundary: the file is damaged rather than
+                // oversized, and the two deserve different answers.
+                throw ImportFailureCode.unreadableFile
+            }
+        }
+    }
+
+    /// Walks a GIF sub-block chain and returns the index just past its
+    /// terminator. Bounds-checked, and every step advances.
+    private static func skipSubBlocks(_ bytes: [UInt8], from start: Int) throws -> Int {
+        var cursor = start
+        while true {
+            guard cursor < bytes.count else { throw ImportFailureCode.unreadableFile }
+            let length = Int(bytes[cursor])
+            if length == 0 { return cursor + 1 }
+            cursor += length + 1
         }
     }
 }

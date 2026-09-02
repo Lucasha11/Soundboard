@@ -141,6 +141,11 @@ public final class SoundboardComposition: ObservableObject {
         retention.auditTrail()
     }
 
+    /// The decoder for a firing tile, or nil while it shows its poster.
+    public func animationSession(for tileID: String) -> AnimationSession? {
+        controller.animationSession(for: tileID)
+    }
+
     public func handleMemoryPressure() {
         controller.handleMemoryPressure()
         posters.handleMemoryPressure()

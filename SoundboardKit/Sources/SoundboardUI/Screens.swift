@@ -1,10 +1,12 @@
 import SwiftUI
+import VisualEngine
 
 // MARK: - Explore
 
 struct ExploreView: View {
     @ObservedObject var model: BoardModel
     let poster: (String) -> CGImage?
+    let session: (String) -> AnimationSession?
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: DS.Metrics.exploreGridGap),
@@ -129,6 +131,7 @@ struct ExploreView: View {
                     tile: tile,
                     isFiring: model.isFiring(tile.id),
                     poster: poster(tile.id),
+                    session: { session(tile.id) },
                     onFire: { model.fire(tile) }
                 )
                 // LazyVGrid only builds rows as they approach the viewport, so
@@ -333,10 +336,18 @@ struct FillPadSheet: View {
 public struct SoundboardRootView: View {
     @ObservedObject var model: BoardModel
     @ObservedObject var posters: PosterProvider
+    /// Supplies the decoder for a firing tile. Defaults to none, so previews
+    /// and checks get the poster-only path without extra wiring.
+    let session: (String) -> AnimationSession?
 
-    public init(model: BoardModel, posters: PosterProvider) {
+    public init(
+        model: BoardModel,
+        posters: PosterProvider,
+        session: @escaping (String) -> AnimationSession? = { _ in nil }
+    ) {
         self.model = model
         self.posters = posters
+        self.session = session
     }
 
     public var body: some View {
@@ -346,8 +357,10 @@ public struct SoundboardRootView: View {
             VStack(spacing: 0) {
                 Group {
                     switch model.tab {
-                    case .explore: ExploreView(model: model, poster: posters.image(for:))
-                    case .board: BoardView(model: model, poster: posters.image(for:))
+                    case .explore:
+                        ExploreView(model: model, poster: posters.image(for:), session: session)
+                    case .board:
+                        BoardView(model: model, poster: posters.image(for:))
                     }
                 }
                 .frame(maxHeight: .infinity)

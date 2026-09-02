@@ -13,6 +13,7 @@ public final class SoundLibrary {
     private let catalogueURL: URL
     private let store: BlobStore
     private let extractor: ClipExtractor
+    private let gifTranscoder: GIFTranscoder
     private let verifier: MediaVerifier
     private var records: [StoredSound] = []
     private let lock = NSLock()
@@ -24,6 +25,7 @@ public final class SoundLibrary {
         self.catalogueURL = root.appendingPathComponent("catalogue.json")
         self.store = try BlobStore(root: root.appendingPathComponent("media", isDirectory: true))
         self.extractor = ClipExtractor(caps: caps)
+        self.gifTranscoder = GIFTranscoder(caps: caps)
         self.verifier = MediaVerifier(caps: caps)
         try load()
     }
@@ -113,6 +115,79 @@ public final class SoundLibrary {
         // Refuses to persist an undeclared or unclassified field.
         try PersistenceGuard.validate(record, encryptionAvailable: true)
 
+        try save(commit(record))
+        return record
+    }
+
+    /// Pairs a sound the user picked with a gif they picked, which is the
+    /// product's headline move: "pair your own gif with any sound".
+    ///
+    /// Two sources rather than one, because that is what the feature is. The
+    /// single-source `importClip(from:...)` pulls audio and video out of one
+    /// asset, which covers a video the user trimmed - but a user pairing an mp3
+    /// with a reaction gif has two files, and `AVFoundation` cannot read an
+    /// animated gif at all, so neither half of that worked before.
+    ///
+    /// Both files are the user's own, on this device. Nothing here is
+    /// transmitted, served, ranked or indexed (`DG-ACQ-08`).
+    @discardableResult
+    public func importClip(
+        audio audioSourceURL: URL,
+        visual visualSourceURL: URL,
+        start: TimeInterval,
+        duration: TimeInterval,
+        title: String
+    ) async throws -> StoredSound {
+        _ = try verifier.verify(fileAt: audioSourceURL)
+        let visualKind = try verifier.verify(fileAt: visualSourceURL)
+
+        let staging = root
+            .appendingPathComponent("staging", isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: staging) }
+        try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
+
+        // Audio first. A visual with no sound is not a tile, so failing here
+        // costs nothing and avoids opening an encoder session.
+        let audioOnly = try await extractor.extractAudio(
+            from: audioSourceURL, start: start, duration: duration, into: staging
+        )
+
+        let visuals: GIFTranscoder.VisualArtifacts
+        switch visualKind.container {
+        case .gif:
+            visuals = try await gifTranscoder.transcode(
+                gifAt: visualSourceURL, duration: audioOnly.duration, into: staging
+            )
+        case .png, .jpeg, .heic:
+            visuals = try await gifTranscoder.transcodeStill(
+                at: visualSourceURL, into: staging
+            )
+        default:
+            // A video paired with separate audio is a reasonable feature and
+            // is not this one. Refused with a code rather than half-handled.
+            throw ImportFailureCode.unsupportedContainer
+        }
+
+        let audio: BlobRef
+        let poster: BlobRef
+        let animation: BlobRef?
+        do {
+            audio = try store.adopt(fileAt: audioOnly.audioURL, kind: .audio)
+            poster = try store.adopt(fileAt: visuals.posterURL, kind: .poster)
+            animation = try store.adopt(fileAt: visuals.animationURL, kind: .animation)
+        } catch {
+            throw ImportFailureCode.storageFull
+        }
+
+        let record = StoredSound(
+            title: title,
+            durationMs: Int(audioOnly.duration * 1000),
+            audio: audio,
+            animation: animation,
+            poster: poster
+        )
+        try PersistenceGuard.validate(record, encryptionAvailable: true)
         try save(commit(record))
         return record
     }

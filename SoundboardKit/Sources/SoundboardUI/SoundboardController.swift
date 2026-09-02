@@ -39,6 +39,11 @@ public final class SoundboardController {
     public private(set) var lastVisual: TileVisual?
     public private(set) var lastSchedule: FrameSchedule?
 
+    /// Sessions for the tiles currently animating, so the view layer has
+    /// something to pull frames from. Previously `fire` threw the session away
+    /// the moment it got it, which is why no tile ever animated.
+    private var animating: [String: AnimationSession] = [:]
+
     /// Keeps the engine alive across calls, headphone changes and audio-server
     /// restarts. Held here because it must outlive `warmUp()`: an observer
     /// released at the end of a function stops observing, and the board goes
@@ -168,7 +173,29 @@ public final class SoundboardController {
             )
             self?.lastVisual = fired.visual
             self?.lastSchedule = fired.schedule
+            guard let self else { return }
+
+            // The pool may have refused a session because four tiles are
+            // already animating, which is a legitimate outcome: the tile falls
+            // back to its poster rather than degrading every other tile.
+            guard let session = fired.session else { return }
+            self.animating[tile.id] = session
+
+            // Held only for as long as the clip. Without this the pool leaks a
+            // decoder per fire and only reclaims one when the cap forces it,
+            // which is the difference between four concurrent animations and
+            // four *ever*.
+            let holdFor = max(0.1, tile.duration)
+            try? await Task.sleep(nanoseconds: UInt64(holdFor * 1_000_000_000))
+            self.animating.removeValue(forKey: tile.id)
+            self.visual.endAnimation(tileID: tile.id)
         }
+    }
+
+    /// The animation session for a firing tile, or nil if it is showing its
+    /// poster.
+    public func animationSession(for tileID: String) -> AnimationSession? {
+        animating[tileID]
     }
 
     public func stopAll() {

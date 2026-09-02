@@ -25,22 +25,43 @@ enum HostileCorpus {
 
     // MARK: - Builders
 
-    /// A GIF header with the canvas size and frame count the caller asks for.
-    /// Both fields are cheap for an attacker to lie about, which is exactly why
-    /// the gate reads them before handing anything to a decoder.
-    static func gif(width: Int, height: Int, frames: Int) -> Data {
+    /// A structurally valid GIF with the canvas size and frame count the
+    /// caller asks for. Both header fields are cheap for an attacker to lie
+    /// about, which is why the gate reads them before handing anything to a
+    /// decoder.
+    ///
+    /// The frames are real blocks - descriptor, packed field, LZW code size,
+    /// terminated sub-block chain - rather than a bare `0x2C` byte. They have
+    /// to be: the verifier walks the block structure now, and a fixture the
+    /// walker cannot parse would test the damaged-file path while claiming to
+    /// test the frame cap.
+    static func gif(width: Int, height: Int, frames: Int, pixelFiller: UInt8 = 0x00) -> Data {
         var bytes = Array("GIF89a".utf8)
         bytes += [UInt8(width & 0xFF), UInt8((width >> 8) & 0xFF)]
         bytes += [UInt8(height & 0xFF), UInt8((height >> 8) & 0xFF)]
-        bytes += [0x00, 0x00]                       // packed fields, background
-        bytes += [UInt8](repeating: 0x00, count: 8) // padding to a sane header length
+        bytes += [0x00, 0x00, 0x00]                 // packed (no global table), background, aspect
         for _ in 0..<frames {
-            bytes.append(0x2C)                      // image descriptor separator
-            bytes += [UInt8](repeating: 0x00, count: 9)
+            bytes.append(0x2C)                      // image separator
+            bytes += [0x00, 0x00, 0x00, 0x00]       // left, top
+            bytes += [0x01, 0x00, 0x01, 0x00]       // 1x1
+            bytes.append(0x00)                      // packed: no local colour table
+            bytes.append(0x02)                      // LZW minimum code size
+            bytes.append(0x04)                      // one 4-byte sub-block
+            bytes += [UInt8](repeating: pixelFiller, count: 4)
+            bytes.append(0x00)                      // sub-block terminator
         }
         bytes.append(0x3B)                          // trailer
         return Data(bytes)
     }
+
+    /// A small gif whose *pixel data* is full of `0x2C` bytes.
+    ///
+    /// The regression fixture for a real defect. `0x2C` is the image-separator
+    /// byte and also the ASCII comma, so it occurs constantly inside LZW data.
+    /// The verifier used to count every occurrence in the file, which made an
+    /// ordinary 12-frame gif scan as over a thousand frames and be refused as
+    /// hostile. This fixture is 12 frames and would scan as far more.
+    static let gifWithCommasInPixelData = gif(width: 220, height: 294, frames: 12, pixelFiller: 0x2C)
 
     /// Deterministic pseudo-random bytes. A real RNG would make a failure
     /// unreproducible, and a flaky corpus is worse than no corpus.
