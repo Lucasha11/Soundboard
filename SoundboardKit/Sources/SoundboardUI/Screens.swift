@@ -243,6 +243,48 @@ struct FillPadSheet: View {
     ]
 
     var body: some View {
+        content
+            // Sound first, then picture. `DG-USER-08` allows read-only,
+            // user-initiated import from Files; the picker is the user
+            // choosing, which is the only ingestion route the personal lane
+            // has (`DG-STOP-01/P1`: there is no URL input anywhere).
+            .fileImporter(
+                isPresented: Binding(
+                    get: { model.isPickingAudio },
+                    set: { if !$0 { model.cancelImport() } }
+                ),
+                allowedContentTypes: PersonalImport.audioTypes
+            ) { result in
+                switch result {
+                case let .success(url): model.pickedAudio(url)
+                case .failure: model.cancelImport()
+                }
+            }
+            // The second picker hangs off its own host view on purpose.
+            // SwiftUI honours one presentation modifier of a given kind per
+            // view, so two `.fileImporter`s on the same view silently give you
+            // neither - which is exactly how this failed the first time: the
+            // row was tappable, the state machine advanced, and no picker ever
+            // appeared.
+            .overlay {
+                Color.clear
+                    .frame(width: 0, height: 0)
+                    .fileImporter(
+                        isPresented: Binding(
+                            get: { model.isPickingVisual },
+                            set: { if !$0 { model.cancelImport() } }
+                        ),
+                        allowedContentTypes: PersonalImport.visualTypes
+                    ) { result in
+                        switch result {
+                        case let .success(url): model.pickedVisual(url)
+                        case .failure: model.cancelImport()
+                        }
+                    }
+            }
+    }
+
+    private var content: some View {
         ZStack(alignment: .bottom) {
             DS.Colors.sheetScrim
                 .ignoresSafeArea()
@@ -316,8 +358,26 @@ struct FillPadSheet: View {
                         .strokeBorder(DS.Colors.borderDashed, style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
                 }
                 .padding(.top, 12)
+                .contentShape(Rectangle())
+                .onTapGesture { model.beginImport() }
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier(AccessibilityID.boardPersonalImportRow)
+                .accessibilityAddTraits(.isButton)
+
+                if let failure = model.importFailureMessage {
+                    // A mapped, neutral string. Decoder text can echo bytes
+                    // from the file and carries the filename with it, which is
+                    // what `DG-LOG-01` keeps out of anything a user or a
+                    // support ticket can see.
+                    Text(failure)
+                        .font(DS.Fonts.display(11, .regular))
+                        .foregroundStyle(DS.Colors.textSecondary)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 8)
+                        .onTapGesture { model.acknowledgeImportFailure() }
+                        .accessibilityIdentifier(AccessibilityID.importFailureMessage)
+                }
             }
             .padding(.horizontal, DS.Metrics.screenPadding)
             .padding(.top, 12)
