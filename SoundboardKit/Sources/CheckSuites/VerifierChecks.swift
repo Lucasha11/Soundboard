@@ -53,6 +53,18 @@ enum VerifierChecks {
 
             let ok = try verifier.verify(data: HostileCorpus.gif(width: 480, height: 852, frames: 30))
             Check.expectEqual(ok.container, .gif, "a well-formed vertical gif passes the gate")
+
+            // Regression, found by importing a real gif. 0x2C is the image
+            // separator and also a comma, so it is everywhere inside LZW pixel
+            // data. Counting occurrences made an ordinary 12-frame gif scan as
+            // 1146 frames and be refused - the gate would have rejected most
+            // real gifs a user tried to import, while a malicious file could
+            // still hide its true frame count under the cap.
+            let realistic = try verifier.verify(data: HostileCorpus.gifWithCommasInPixelData)
+            Check.expectEqual(
+                realistic.container, .gif,
+                "a 12-frame gif whose pixel data is full of 0x2C bytes still imports"
+            )
         }
 
         // The corpus is the checked-in record of what hostile input looks

@@ -25,6 +25,7 @@ public enum AllSuites {
         ScaleChecks.run()
         UIChecks.run()
         await VisualChecks.run()
+        await AnimationPipelineChecks.run()
         await LibraryChecks.run()
         await CrashSafetyChecks.run()
         await EndToEndChecks.run()

@@ -2,6 +2,7 @@ import AVFoundation
 import Foundation
 import GovernanceKit
 import ImportPipeline
+import SoundLibrary
 import MediaStore
 import PlaybackEngine
 import QuartzCore
@@ -21,6 +22,51 @@ import VisualEngine
 // file and sends nothing anywhere.
 
 setvbuf(stdout, nil, _IONBF, 0)
+
+// MARK: - Paired import
+
+// `soundboard-uat pair <audio> <visual> <container> [title]`
+//
+// Runs the real paired-import path - the one behind "pair your own gif with
+// any sound" - into a SoundLibrary container, and prints what landed. Used to
+// seed a simulator container with real media, since the app has no file picker
+// yet. Both inputs are local files the user already owns (`DG-STOP-01/P1`), and
+// nothing is transmitted (`DG-ACQ-08`).
+if CommandLine.arguments.dropFirst().first == "pair" {
+    let rest = Array(CommandLine.arguments.dropFirst(2))
+    guard rest.count >= 3 else {
+        print("usage: soundboard-uat pair <audio> <visual> <container> [title]")
+        exit(2)
+    }
+    let audio = URL(fileURLWithPath: rest[0])
+    let visual = URL(fileURLWithPath: rest[1])
+    let container = URL(fileURLWithPath: rest[2])
+    let title = rest.count > 3 ? rest[3] : "get out"
+
+    do {
+        let library = try SoundLibrary(root: container)
+        let stored = try await library.importClip(
+            audio: audio, visual: visual, start: 0, duration: 2.0, title: title
+        )
+        print("imported \(stored.title)")
+        print("  duration     \(String(format: "%.2f", stored.duration)) s")
+        print("  audio blob   \(stored.audio.digest.prefix(12))  \(stored.audio.byteCount) bytes")
+        print("  poster blob  \(stored.poster.digest.prefix(12))  \(stored.poster.byteCount) bytes")
+        if let animation = stored.animation {
+            print("  animation    \(animation.digest.prefix(12))  \(animation.byteCount) bytes")
+        } else {
+            print("  animation    none")
+        }
+        print("  on disk      \(library.totalByteCount) bytes")
+        exit(0)
+    } catch let code as ImportFailureCode {
+        print("refused: \(code.rawValue)")
+        exit(1)
+    } catch {
+        print("failed: \(error)")
+        exit(1)
+    }
+}
 
 // MARK: - Arguments
 

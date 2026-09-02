@@ -69,6 +69,57 @@ public struct ClipExtractor {
         }
     }
 
+    /// Audio only, for the paired-import path where the picture comes from a
+    /// separate file. Same trim, loudness normalisation and fades as a full
+    /// extraction - the canonical audio form does not depend on where the
+    /// picture came from.
+    public func extractAudio(
+        from sourceURL: URL,
+        start: TimeInterval,
+        duration requestedDuration: TimeInterval,
+        into outputDirectory: URL
+    ) async throws -> (audioURL: URL, duration: TimeInterval, appliedGain: Float) {
+        do {
+            guard sourceURL.isFileURL else { throw ImportFailureCode.unsupportedContainer }
+            try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
+
+            let timeout = caps.decodeTimeout
+            let asset = AVURLAsset(url: sourceURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+            let sourceDuration = try await withDecodeTimeout(timeout) {
+                try await asset.load(.duration).seconds
+            }
+            guard sourceDuration.isFinite, sourceDuration > 0 else { throw ImportFailureCode.unreadableFile }
+            guard sourceDuration <= caps.maxSourceDuration else { throw ImportFailureCode.sourceTooLong }
+
+            let clipDuration = min(requestedDuration, caps.maxClipDuration, max(0, sourceDuration - start))
+            guard clipDuration > 0 else { throw ImportFailureCode.unreadableFile }
+            let window = CMTimeRange(
+                start: CMTime(seconds: start, preferredTimescale: 600),
+                duration: CMTime(seconds: clipDuration, preferredTimescale: 600)
+            )
+
+            let tracks = try await withDecodeTimeout(timeout) {
+                try await asset.loadTracks(withMediaType: .audio)
+            }
+            guard let track = tracks.first else { throw ImportFailureCode.noAudioTrack }
+
+            let (channels, gain) = try await withDecodeTimeout(timeout) {
+                try await self.decodeAndNormalise(track: track, asset: asset, window: window)
+            }
+            let audioURL = outputDirectory.appendingPathComponent("clip.m4a")
+            try await withDecodeTimeout(timeout) {
+                try await self.writeAAC(channels: channels, to: audioURL)
+            }
+            return (audioURL, clipDuration, gain)
+        } catch let code as ImportFailureCode {
+            throw code
+        } catch {
+            // Same reason as `extract`: an AVFoundation error carries the
+            // source URL and decoder text in its userInfo (`DG-LOG-01`).
+            throw ImportFailureCode.decodeFailed
+        }
+    }
+
     private func performExtraction(
         from sourceURL: URL,
         start: TimeInterval,

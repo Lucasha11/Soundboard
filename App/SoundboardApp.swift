@@ -70,7 +70,11 @@ private struct ContentHost: View {
     }
 
     var body: some View {
-        SoundboardRootView(model: composition.model, posters: composition.posters)
+        SoundboardRootView(
+            model: composition.model,
+            posters: composition.posters,
+            session: composition.animationSession(for:)
+        )
             .onReceive(
                 NotificationCenter.default.publisher(
                     for: UIApplication.didReceiveMemoryWarningNotification

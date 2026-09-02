@@ -1,4 +1,5 @@
 import SwiftUI
+import VisualEngine
 
 /// The diagonal hatch that stands in for gif art throughout the design.
 ///
@@ -69,11 +70,18 @@ struct ExploreTileView: View {
     /// Decoded poster from the blob store. Absent for a sound whose poster has
     /// not been decoded yet, and for the design's own placeholder catalogue.
     var poster: CGImage?
+    /// The decoder for this tile while it is firing, if the pool granted one.
+    /// Nil means poster-only, which is a legitimate outcome when four tiles are
+    /// already animating.
+    var session: () -> AnimationSession? = { nil }
     let onFire: () -> Void
 
     var body: some View {
         ZStack {
-            if let poster {
+            if isFiring, session() != nil {
+                TileAnimationView(session: session, poster: poster)
+                    .allowsHitTesting(false)
+            } else if let poster {
                 Image(decorative: poster, scale: 1)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
