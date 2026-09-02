@@ -39,6 +39,12 @@ public final class SoundboardController {
     public private(set) var lastVisual: TileVisual?
     public private(set) var lastSchedule: FrameSchedule?
 
+    /// Keeps the engine alive across calls, headphone changes and audio-server
+    /// restarts. Held here because it must outlive `warmUp()`: an observer
+    /// released at the end of a function stops observing, and the board goes
+    /// silent on the first interruption with nothing in the logs to say why.
+    private let sessionObserver: AudioSessionObserver
+
     public init(
         playback: PlaybackEngine = PlaybackEngine(),
         visual: VisualEngine = VisualEngine(),
@@ -47,7 +53,12 @@ public final class SoundboardController {
         self.playback = playback
         self.visual = visual
         self.resolver = resolver
+        self.sessionObserver = AudioSessionObserver(engine: playback)
     }
+
+    /// The session events the engine reacts to, for anything that needs to
+    /// assert on a failed rebuild.
+    public var lastSessionFailure: Error? { sessionObserver.lastFailure }
 
     public func prepare() throws {
         try playback.prepare()
@@ -68,6 +79,10 @@ public final class SoundboardController {
     /// has to see the grid before they can hit a tile, which is orders of
     /// magnitude longer than the warm-up takes.
     public func warmUp() {
+        // Subscribing before the graph is built, not after: an interruption
+        // that lands during warm-up is exactly the case a late subscription
+        // misses (`BACKEND_PLAN.md` B3.3).
+        sessionObserver.start()
         let playback = self.playback
         Task.detached(priority: .userInitiated) {
             try? playback.prepare()

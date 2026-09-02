@@ -323,6 +323,11 @@ and `python3 governance/check.py` is green at every step.
 - **B3.3** Session handling: interruption, route change, media services reset.
 - **B3.4** Audio and visual trigger synchronisation.
 - **Gate**: measured tap-to-sound latency under 30 ms on the oldest supported device, over 100 trials, p99. Eight concurrent voices without dropout. Engine survives a call interrupting playback and a headphone unplug mid-clip.
+- **Partly met 2026-09-01. The latency half is blocked on hardware and is not claimed.**
+  - B3.3 is met, and building it found the defect: the interruption, route-change and media-services handlers existed and were covered, but nothing in the app ever called them. No observer was registered, so on a device a single incoming call would have stopped the player nodes and left every later tap silent until the app was force quit. `AudioSessionObserver` is the missing wire; `SessionResilienceChecks` drives every event through it, and the interruption `userInfo` parsing is factored to a pure function so it is tested by raw value on macOS too.
+  - B3.4 is met: the frame schedule is asserted to be anchored to the reported audio start rather than to the tap.
+  - Eight concurrent voices without dropout is covered by `PlaybackChecks`.
+  - **The measured p99 is outstanding.** `LatencyHarness` is built and its arithmetic is covered - including that a non-device run cannot satisfy the gate however fast it looks - but the number itself needs a physical device. A simulator has no audio hardware and an emulated output route, so a figure from one would be evidence of nothing. Section 10 is explicit that a flaky latency test gets a wider threshold with a recorded justification or gets fixed, never a retry loop; inventing a simulator number would be worse than either. `LatencyReport.satisfiesB3Gate` refuses a non-device run by construction, so this cannot be closed by accident.
 
 ### Phase B4 - Scale to 100+
 - **B4.1** LRU buffer cache with the 48-clip ceiling.
