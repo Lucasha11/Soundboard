@@ -1,36 +1,48 @@
+import CoreImage
 import CoreVideo
 import SwiftUI
 import VisualEngine
 
-/// Renders a firing tile's animation, a frame at a time.
+/// Renders a firing tile's animation, paced against the sound.
 ///
-/// This is the piece that was missing. `VisualEngine`, `AnimationSession` and
-/// `DecodeSessionPool` were all built and covered, `SoundboardController.fire`
-/// called into them - and nothing ever displayed the result. `lastVisual` and
-/// `lastSchedule` were written and never read, `nextFrame()` was never called,
-/// and `endAnimation` was never called either, so a session was acquired on
-/// every fire and only released when the pool's cap forced it out. Tiles showed
-/// a static poster and the gif never moved.
+/// Two separate things had to be true for a tile to animate, and each was
+/// missing on its own.
 ///
-/// Frames are pulled on a display-synced timeline rather than buffered: at tile
-/// size one BGRA frame is about 2 MB, so a two second tile decoded up front is
-/// 120 MB for a single tile.
+/// First, something had to display the frames at all. `VisualEngine`,
+/// `AnimationSession` and `DecodeSessionPool` were built and covered,
+/// `SoundboardController.fire` called into them, and nothing ever showed the
+/// result: `nextFrame()` was never called and `endAnimation` never released
+/// the decoder.
+///
+/// Second - and this is the part that is easy to get wrong twice - the frames
+/// have to be *paced*. Pulling one frame per display tick looks correct on a
+/// 60 Hz simulator and is badly wrong on a 120 Hz phone: a 30 fps clip runs at
+/// four times speed and finishes in a quarter of the time, while the audio
+/// plays at normal speed. Each frame carries its own presentation offset, and
+/// the clip is anchored to the instant the audio actually starts, so picture
+/// and sound stay together on any display rate. That anchor is what
+/// `FrameSchedule` was for.
 struct TileAnimationView: View {
     /// Looked up per tick rather than passed in, because the session is
     /// acquired asynchronously after the tap: the tile starts rendering the
     /// moment the decoder is ready, with no observation plumbing in between.
     let session: () -> AnimationSession?
-    /// Shown until the first frame arrives, and again once the clip ends, so a
+    /// The host-clock instant the audio starts. Frames are due relative to
+    /// this, never to when this view happened to appear.
+    let audioStart: () -> TimeInterval?
+    /// Shown until the first frame is due, and again once the clip ends, so a
     /// tile never flashes empty.
     let poster: CGImage?
 
     @State private var frame: CGImage?
+    /// Decoded but not yet due. Holding one frame back is what turns "as fast
+    /// as the display ticks" into "at the rate it was encoded".
+    @State private var pending: (image: CGImage, offset: TimeInterval)?
 
     var body: some View {
         TimelineView(.animation) { context in
-            let image = frame ?? poster
             Group {
-                if let image {
+                if let image = frame ?? poster {
                     Image(decorative: image, scale: 1)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
@@ -38,39 +50,39 @@ struct TileAnimationView: View {
                     Color.black
                 }
             }
-            // The timeline ticks with the display and each tick pulls at most
-            // one frame. The session is the clock: when it runs dry the tile
-            // settles back onto its poster.
-            .onChange(of: context.date) { _, _ in
-                if let next = pull() { frame = next }
-            }
+            .onChange(of: context.date) { _, _ in advance() }
         }
     }
 
-    /// Pulls the next decoded frame, if one is ready.
+    /// Shows the pending frame if it is due, then decodes at most one more.
     ///
-    /// Returns `nil` rather than blocking when the decoder has nothing yet:
-    /// dropping a frame is invisible, while waiting on a decode inside a view
-    /// update is a dropped scroll.
-    private func pull() -> CGImage? {
-        guard let next = session()?.nextFrame() else { return nil }
-        return Self.image(from: next.pixelBuffer)
+    /// At most one decode per tick on purpose: decoding ahead would buffer
+    /// frames that are 2 MB each at tile size, which is the cost this whole
+    /// layer exists to avoid.
+    private func advance() {
+        guard let session = session() else { return }
+        let elapsed = ProcessInfo.processInfo.systemUptime - (audioStart() ?? ProcessInfo.processInfo.systemUptime)
+
+        if let held = pending, held.offset <= elapsed {
+            frame = held.image
+            pending = nil
+        }
+        guard pending == nil, let next = session.nextFrame() else { return }
+        guard let image = Self.image(from: next.pixelBuffer) else { return }
+        if next.offset <= elapsed {
+            // Already due, which happens on the first frame and after a
+            // dropped tick. Showing it immediately is right: the clip should
+            // catch up to the sound rather than drift behind it.
+            frame = image
+        } else {
+            pending = (image, next.offset)
+        }
     }
 
     private static func image(from buffer: CVPixelBuffer) -> CGImage? {
-        var out: CGImage?
-        VTCreateCGImageFromCVPixelBufferShim(buffer, &out)
-        return out
+        let ciImage = CIImage(cvPixelBuffer: buffer)
+        return SharedCIContext.shared.createCGImage(ciImage, from: ciImage.extent)
     }
-}
-
-/// `VTCreateCGImageFromCVPixelBuffer` lives in VideoToolbox and is not
-/// available everywhere the package builds, so the conversion goes through
-/// Core Image, which is.
-private func VTCreateCGImageFromCVPixelBufferShim(_ buffer: CVPixelBuffer, _ out: inout CGImage?) {
-    let ciImage = CIImage(cvPixelBuffer: buffer)
-    let context = SharedCIContext.shared
-    out = context.createCGImage(ciImage, from: ciImage.extent)
 }
 
 /// One context for the whole app. Creating a `CIContext` per frame allocates a

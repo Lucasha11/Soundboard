@@ -74,12 +74,15 @@ struct ExploreTileView: View {
     /// Nil means poster-only, which is a legitimate outcome when four tiles are
     /// already animating.
     var session: () -> AnimationSession? = { nil }
+    /// When this tile's audio starts, so the picture is paced against the
+    /// sound rather than against the display's refresh rate.
+    var audioStart: () -> TimeInterval? = { nil }
     let onFire: () -> Void
 
     var body: some View {
         ZStack {
             if isFiring, session() != nil {
-                TileAnimationView(session: session, poster: poster)
+                TileAnimationView(session: session, audioStart: audioStart, poster: poster)
                     .allowsHitTesting(false)
             } else if let poster {
                 Image(decorative: poster, scale: 1)

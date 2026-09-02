@@ -18,6 +18,12 @@ public final class SoundboardComposition: ObservableObject {
 
     private let horizon = PrefetchHorizon()
 
+    /// The app's one logger. Everything it writes has been through the
+    /// redactor, which is the point: `DG-LOG-02` wants the filter at the
+    /// library boundary rather than at each call site, so there is no way to
+    /// log from the app that bypasses it.
+    private let log = RedactingLogger(subsystem: "soundboard", sink: OSLogSink(category: "app"))
+
     /// The scheduled deleter, run once per launch. `PLAN.md` Step 1.3 wants it
     /// alive from day one, against a store that is mostly empty.
     private let retention: RetentionWorker
@@ -104,10 +110,22 @@ public final class SoundboardComposition: ObservableObject {
                     title: Self.title(forVisual: visual)
                 )
                 self.refresh()
+                self.log.log("import_succeeded", ["session": SessionIdentifier.logValue])
                 return nil
             } catch let code as ImportFailureCode {
+                // The code, never the file. An enum case name says nothing
+                // about the user; the decoder's own message would carry the
+                // filename with it (`DG-LOG-01`).
+                self.log.log("import_rejected", [
+                    "reason": code.logValue,
+                    "session": SessionIdentifier.logValue,
+                ])
                 return code.userMessage
             } catch {
+                self.log.log("import_rejected", [
+                    "reason": ImportFailureCode.decodeFailed.logValue,
+                    "session": SessionIdentifier.logValue,
+                ])
                 return ImportFailureCode.decodeFailed.userMessage
             }
         }
@@ -117,7 +135,23 @@ public final class SoundboardComposition: ObservableObject {
             self.loadHorizon(self.model.catalogue, visiblePage: page)
         }
 
+        // The engine cannot throw out of a system audio callback, so a failed
+        // rebuild is collected here and logged rather than left in a property
+        // nothing reads.
+        controller.onSessionFailure = { [log] detail in
+            log.log("audio_session_recovery_failed", [
+                "detail": LogValue(detail, .c2),
+                "session": SessionIdentifier.logValue,
+            ])
+        }
+
         if warmsAudio { controller.warmUp() }
+        if let failure = retentionFailure {
+            log.log("retention_sweep_failed", [
+                "detail": LogValue(failure, .c2),
+                "session": SessionIdentifier.logValue,
+            ])
+        }
         // Only the horizon, never the whole catalogue: at 120 tiles that is
         // 92 MB of decoded PCM against a 150 MB budget for the entire media
         // layer (`BACKEND_PLAN.md` Section 6).
@@ -188,6 +222,11 @@ public final class SoundboardComposition: ObservableObject {
     /// The decoder for a firing tile, or nil while it shows its poster.
     public func animationSession(for tileID: String) -> AnimationSession? {
         controller.animationSession(for: tileID)
+    }
+
+    /// When a firing tile's audio starts, for pacing its picture.
+    public func animationStart(for tileID: String) -> TimeInterval? {
+        controller.animationStart(for: tileID)
     }
 
     public func handleMemoryPressure() {

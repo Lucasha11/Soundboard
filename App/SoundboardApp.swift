@@ -73,7 +73,8 @@ private struct ContentHost: View {
         SoundboardRootView(
             model: composition.model,
             posters: composition.posters,
-            session: composition.animationSession(for:)
+            session: composition.animationSession(for:),
+            audioStart: composition.animationStart(for:)
         )
             .onReceive(
                 NotificationCenter.default.publisher(
