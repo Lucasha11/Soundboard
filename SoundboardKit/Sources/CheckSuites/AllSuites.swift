@@ -18,6 +18,7 @@ public enum AllSuites {
         RetentionChecks.run()
         StoreChecks.run()
         VerifierChecks.run()
+        await ImportPipelineChecks.run()
         AudioChecks.run()
         PlaybackChecks.run()
         UIChecks.run()
