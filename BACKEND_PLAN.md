@@ -335,6 +335,11 @@ and `python3 governance/check.py` is green at every step.
 - **B4.3** Video decode session pool with the cap of 4.
 - **B4.4** Memory pressure path.
 - **Gate**: 120-tile board scrolls at 120 Hz with no dropped frames, media layer stays under the 150 MB ceiling, and rapid-firing 10 tiles never starves audio. Instruments trace attached to the PR.
+- **Partly met 2026-09-01. The frame-rate half and the Instruments trace are blocked on hardware and are not claimed.**
+  - B4.2 did not exist. "The visible page plus one either side" was a doc comment on `SoundboardController.preload`, which loaded every tile it was handed, and the composition handed it the whole catalogue. `PrefetchHorizon` is the missing behaviour, wired through `BoardModel.tileAppeared(at:)` so a real scroll moves it, with eviction on both caches so scrolling on actually frees memory rather than only adding to it.
+  - The memory half of the gate is asserted at 120 tiles, per Section 10's "asserted, not eyeballed". Worth recording accurately: holding all 120 tiles is about 109 MB, which is *inside* the 150 MB ceiling - the honest objection is not that it overflows but that it spends 73% of the media budget on tiles that cannot be on screen, leaving too little for decode sessions, and that it admits 120 clips into a 48-entry LRU so most of the decodes it pays for are immediately evicted.
+  - B4.1 (48-clip LRU), B4.3 (decode session cap of 4) and B4.4 (memory pressure) were already built and covered.
+  - **Outstanding: 120 Hz with no dropped frames, and the Instruments trace.** Both are device measurements. A simulator renders through the host GPU with an emulated display link, so a frame-rate figure from one would be evidence of nothing.
 
 ### Phase B5 - Catalog lane (gated behind `PLAN.md` Phase 3)
 - **B5.1** Signed manifest fetch and signature verification.

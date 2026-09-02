@@ -15,6 +15,8 @@ public final class SoundboardComposition: ObservableObject {
     public let posters: PosterProvider
     public let model: BoardModel
 
+    private let horizon = PrefetchHorizon()
+
     /// The scheduled deleter, run once per launch. `PLAN.md` Step 1.3 wants it
     /// alive from day one, against a store that is mostly empty.
     private let retention: RetentionWorker
@@ -62,6 +64,8 @@ public final class SoundboardComposition: ObservableObject {
         let posters = PosterProvider(resolver: resolver)
 
         let tiles = Self.tiles(from: library)
+        // The model is built before `self` exists, so the page callback is
+        // attached below once there is a composition to hold the tiles.
         let model = BoardModel(
             catalogue: tiles,
             showAds: showAds,
@@ -75,9 +79,20 @@ public final class SoundboardComposition: ObservableObject {
         self.retention = retention
         self.retentionFailure = retentionFailure
 
+        // Scrolling onto a new page moves the horizon. Weak, because the model
+        // is owned by this composition and a strong capture would keep it
+        // alive forever.
+        model.onVisiblePageChange = { [weak self] page in
+            guard let self else { return }
+            self.loadHorizon(self.model.catalogue, visiblePage: page)
+        }
+
         if warmsAudio { controller.warmUp() }
-        controller.preload(tiles)
-        posters.load(tiles)
+        // Only the horizon, never the whole catalogue: at 120 tiles that is
+        // 92 MB of decoded PCM against a 150 MB budget for the entire media
+        // layer (`BACKEND_PLAN.md` Section 6).
+        controller.preload(tiles, visiblePage: 0)
+        posters.load(horizon.resident(tiles, visiblePage: 0))
     }
 
     /// The user's own sounds, or the design's placeholder set while the library
@@ -95,8 +110,14 @@ public final class SoundboardComposition: ObservableObject {
     public func refresh() {
         let tiles = Self.tiles(from: library)
         model.setCatalogue(tiles)
-        controller.preload(tiles)
-        posters.load(tiles)
+        loadHorizon(tiles, visiblePage: model.visiblePage)
+    }
+
+    /// Moves the prefetch horizon after a scroll. Called by `BoardModel` when
+    /// the visible page changes, never on every appearing tile.
+    private func loadHorizon(_ tiles: [SoundTile], visiblePage: Int) {
+        controller.preload(tiles, visiblePage: visiblePage)
+        posters.load(horizon.resident(tiles, visiblePage: visiblePage))
     }
 
     /// Imports a clip the user picked, then refreshes the grid.

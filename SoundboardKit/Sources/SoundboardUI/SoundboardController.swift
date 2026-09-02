@@ -89,10 +89,40 @@ public final class SoundboardController {
         }
     }
 
-    /// Decodes posters and preloads audio for a page of tiles. Driven by the
-    /// scroll position: the visible page plus one either side.
+    /// Decodes posters and preloads audio for the tiles within the prefetch
+    /// horizon, and releases what has fallen outside it.
+    ///
+    /// - Parameters:
+    ///   - tiles: the whole catalogue, in order. The horizon decides which of
+    ///     them are worth holding, so callers do not have to slice correctly.
+    ///   - visiblePage: the page the user is looking at.
+    ///   - horizon: the visible page plus one either side, per
+    ///     `BACKEND_PLAN.md` Section 6.
+    @discardableResult
+    public func preload(
+        _ tiles: [SoundTile],
+        visiblePage: Int,
+        horizon: PrefetchHorizon = PrefetchHorizon()
+    ) -> [String: ImportFailureCode] {
+        let resident = horizon.resident(tiles, visiblePage: visiblePage)
+        // Evicting first keeps the peak down: loading the new page before
+        // dropping the old one puts both in memory at once, which is exactly
+        // the moment the 150 MB ceiling is under most pressure.
+        let keep = Set(resident.map(\.id))
+        playback.releaseBuffers(except: keep)
+        visual.releasePosters(except: keep)
+        return preloadResident(resident)
+    }
+
+    /// Preloads exactly the tiles given, with no horizon applied. The board's
+    /// eight pads are always resident, so they use this directly.
     @discardableResult
     public func preload(_ tiles: [SoundTile]) -> [String: ImportFailureCode] {
+        preloadResident(tiles)
+    }
+
+    @discardableResult
+    private func preloadResident(_ tiles: [SoundTile]) -> [String: ImportFailureCode] {
         var failures: [String: ImportFailureCode] = [:]
 
         let page = tiles.compactMap { tile -> (id: TileID, posterURL: URL)? in

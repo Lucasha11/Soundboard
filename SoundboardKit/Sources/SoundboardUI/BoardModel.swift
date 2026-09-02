@@ -62,18 +62,48 @@ public final class BoardModel: ObservableObject {
     /// Fires the actual sound. Injected so the model stays testable and so the
     /// view layer never talks to the audio engine directly.
     private let onFire: (SoundTile) -> Void
+
+    /// Told when the user scrolls onto a different page, so the composition
+    /// can move the prefetch horizon. Settable rather than injected because
+    /// the composition that answers it does not exist yet when the model is
+    /// built; the view layer still never talks to the engines directly.
+    public var onVisiblePageChange: (Int) -> Void
+
+    /// The page the user is looking at. Drives which tiles stay in memory
+    /// (`BACKEND_PLAN.md` Section 6).
+    public private(set) var visiblePage = 0
+    private let horizon = PrefetchHorizon()
     private var holdTask: Task<Void, Never>?
 
     public init(
         catalogue: [SoundTile],
         showAds: Bool = true,
         startTab: Tab = .explore,
-        onFire: @escaping (SoundTile) -> Void = { _ in }
+        onFire: @escaping (SoundTile) -> Void = { _ in },
+        onVisiblePageChange: @escaping (Int) -> Void = { _ in }
     ) {
         self.catalogue = catalogue
         self.showAds = showAds
         self.tab = startTab
         self.onFire = onFire
+        self.onVisiblePageChange = onVisiblePageChange
+    }
+
+    /// Reported by each tile as it comes on screen.
+    ///
+    /// Deliberately driven by what actually appeared rather than by a scroll
+    /// offset: offsets need the row height, the section headers and the ad
+    /// cards all accounted for, and every one of those is a chance to be a
+    /// page out. A tile appearing is the ground truth.
+    ///
+    /// Only a *change* of page is forwarded, because `onAppear` fires for
+    /// every tile in a row and re-preloading the same horizon on each one
+    /// would be the scroll stutter this phase exists to prevent.
+    public func tileAppeared(at index: Int) {
+        let page = horizon.page(ofIndex: index)
+        guard page != visiblePage else { return }
+        visiblePage = page
+        onVisiblePageChange(page)
     }
 
     // MARK: - Derived

@@ -22,7 +22,7 @@ struct ExploreView: View {
                             showsHint: index == 0,
                             topPadding: index == 0 ? 10 : 16
                         )
-                        grid(section)
+                        grid(section, firstIndex: index * DS.Metrics.tilesPerSection)
                         if model.showAds {
                             ExploreAdCard()
                                 .padding(.top, 14)
@@ -122,15 +122,18 @@ struct ExploreView: View {
         .padding(.bottom, 8)
     }
 
-    private func grid(_ tiles: [SoundTile]) -> some View {
+    private func grid(_ tiles: [SoundTile], firstIndex: Int) -> some View {
         LazyVGrid(columns: columns, spacing: DS.Metrics.exploreGridGap) {
-            ForEach(tiles) { tile in
+            ForEach(Array(tiles.enumerated()), id: \.element.id) { offset, tile in
                 ExploreTileView(
                     tile: tile,
                     isFiring: model.isFiring(tile.id),
                     poster: poster(tile.id),
                     onFire: { model.fire(tile) }
                 )
+                // LazyVGrid only builds rows as they approach the viewport, so
+                // this is the scroll signal that moves the prefetch horizon.
+                .onAppear { model.tileAppeared(at: firstIndex + offset) }
             }
         }
     }

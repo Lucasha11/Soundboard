@@ -105,6 +105,20 @@ public final class PosterStore {
         recountLocked()
     }
 
+    /// Drops every poster outside `keep`. The visual half of the prefetch
+    /// horizon: at 120 tiles the posters alone are 21 MB, so holding all of
+    /// them is most of a page of the media budget spent on tiles nobody can
+    /// see.
+    public func evict(except keep: Set<TileID>) {
+        lock.lock()
+        defer { lock.unlock() }
+        for id in entries.keys where !keep.contains(id) {
+            entries.removeValue(forKey: id)
+            stats.evictions += 1
+        }
+        recountLocked()
+    }
+
     public func statistics() -> Statistics {
         lock.lock()
         defer { lock.unlock() }

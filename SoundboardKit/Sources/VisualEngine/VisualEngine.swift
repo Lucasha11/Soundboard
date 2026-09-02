@@ -128,6 +128,11 @@ public final class VisualEngine {
 
     /// Memory pressure. Everything off screen goes and every decoder is
     /// retired; the grid falls back to posters and re-primes lazily.
+    /// Frees posters outside the prefetch horizon.
+    public func releasePosters(except keep: Set<TileID>) {
+        posters.evict(except: keep)
+    }
+
     public func handleMemoryPressure() {
         sessions.releaseAll()
         posters.evictOffscreen()

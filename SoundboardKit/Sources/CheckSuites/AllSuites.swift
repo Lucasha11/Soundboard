@@ -22,6 +22,7 @@ public enum AllSuites {
         AudioChecks.run()
         PlaybackChecks.run()
         SessionResilienceChecks.run()
+        ScaleChecks.run()
         UIChecks.run()
         await VisualChecks.run()
         await LibraryChecks.run()
