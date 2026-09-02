@@ -42,7 +42,34 @@ public struct ClipExtractor {
     ///   - start: where the user scrubbed to.
     ///   - duration: clamped to `caps.maxClipDuration`.
     ///   - outputDirectory: staging. The caller moves results into the blob store.
+    /// Extracts one clip, and guarantees the only error that can escape is an
+    /// `ImportFailureCode`.
+    ///
+    /// That guarantee is the point of the closed enum, and it has to be made
+    /// here rather than hoped for. `AVFoundation` throws `NSError`s whose
+    /// `userInfo` carries the source `NSURL` and the decoder's own failure
+    /// text - so letting one propagate would put the user's filename into
+    /// whatever logs, reports, or failure screens the caller feeds, which is
+    /// precisely what `DG-LOG-01` bars. A foreign error becomes `decodeFailed`:
+    /// less specific, and it says nothing about the file.
     public func extract(
+        from sourceURL: URL,
+        start: TimeInterval,
+        duration requestedDuration: TimeInterval,
+        into outputDirectory: URL
+    ) async throws -> ClipArtifacts {
+        do {
+            return try await performExtraction(
+                from: sourceURL, start: start, duration: requestedDuration, into: outputDirectory
+            )
+        } catch let code as ImportFailureCode {
+            throw code
+        } catch {
+            throw ImportFailureCode.decodeFailed
+        }
+    }
+
+    private func performExtraction(
         from sourceURL: URL,
         start: TimeInterval,
         duration requestedDuration: TimeInterval,
@@ -52,7 +79,14 @@ public struct ClipExtractor {
         try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
 
         let asset = AVURLAsset(url: sourceURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
-        let sourceDuration = try await asset.load(.duration).seconds
+        // Every stage below is raced against the clock. A malformed file that
+        // makes AVFoundation sit forever is a denial of service on the import
+        // queue and costs the attacker nothing, so no stage is unbounded
+        // (`DG-SEC-04`, BACKEND_PLAN.md 4.1).
+        let timeout = caps.decodeTimeout
+        let sourceDuration = try await withDecodeTimeout(timeout) {
+            try await asset.load(.duration).seconds
+        }
         guard sourceDuration.isFinite, sourceDuration > 0 else { throw ImportFailureCode.unreadableFile }
         guard sourceDuration <= caps.maxSourceDuration else { throw ImportFailureCode.sourceTooLong }
 
@@ -63,23 +97,35 @@ public struct ClipExtractor {
             duration: CMTime(seconds: clipDuration, preferredTimescale: 600)
         )
 
-        let audioTracks = try await asset.loadTracks(withMediaType: .audio)
+        let audioTracks = try await withDecodeTimeout(timeout) {
+            try await asset.loadTracks(withMediaType: .audio)
+        }
         guard let audioTrack = audioTracks.first else { throw ImportFailureCode.noAudioTrack }
-        let videoTracks = try await asset.loadTracks(withMediaType: .video)
+        let videoTracks = try await withDecodeTimeout(timeout) {
+            try await asset.loadTracks(withMediaType: .video)
+        }
 
-        let (channels, gain) = try await decodeAndNormalise(track: audioTrack, asset: asset, window: window)
+        let (channels, gain) = try await withDecodeTimeout(timeout) {
+            try await self.decodeAndNormalise(track: audioTrack, asset: asset, window: window)
+        }
         let audioURL = outputDirectory.appendingPathComponent("clip.m4a")
-        try await writeAAC(channels: channels, to: audioURL)
+        try await withDecodeTimeout(timeout) {
+            try await self.writeAAC(channels: channels, to: audioURL)
+        }
 
         var animationURL: URL?
         if let videoTrack = videoTracks.first {
             let candidate = outputDirectory.appendingPathComponent("tile.mp4")
-            try await writeAnimation(asset: asset, track: videoTrack, window: window, to: candidate)
+            try await withDecodeTimeout(timeout) {
+                try await self.writeAnimation(asset: asset, track: videoTrack, window: window, to: candidate)
+            }
             animationURL = candidate
         }
 
         let posterURL = outputDirectory.appendingPathComponent("poster.heic")
-        try await writePoster(asset: asset, window: window, to: posterURL, hasVideo: !videoTracks.isEmpty)
+        try await withDecodeTimeout(timeout) {
+            try await self.writePoster(asset: asset, window: window, to: posterURL, hasVideo: !videoTracks.isEmpty)
+        }
 
         return ClipArtifacts(
             audioURL: audioURL,

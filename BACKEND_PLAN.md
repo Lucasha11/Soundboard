@@ -315,6 +315,7 @@ and `python3 governance/check.py` is green at every step.
 - **B2.3** GIF to mp4 plus poster generation (4.3).
 - **B2.4** Atomic commit and background task handling (4.4).
 - **Gate**: every fixture in the corpus is rejected with an enum code and no crash, no hang past the timeout, and no partial row. `DG-SEC-04`
+- **Gate met 2026-09-01.** `HostileCorpus` is the checked-in, synthetic-only corpus (`P9`); `VerifierChecks` asserts the codes the gate can settle from bytes alone, and `ImportPipelineChecks` drives every entry through `SoundLibrary.importClip` and asserts no record, no bytes and no staging survive. Two defects the gate caught rather than confirmed: the decode timeout was applied inside one read loop rather than per stage, so a stalled track load or encode hung the import queue unbounded; and raw `AVFoundation` errors escaped the pipeline carrying the source `NSURL` and decoder text in `userInfo`, which is the `DG-LOG-01` leak the closed enum exists to prevent. Only an `ImportFailureCode` can now leave `extract` or `importClip`.
 
 ### Phase B3 - Playback engine
 - **B3.1** Engine graph, voice pool, buffer cache.

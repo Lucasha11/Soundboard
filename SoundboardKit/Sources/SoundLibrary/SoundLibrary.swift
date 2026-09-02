@@ -89,9 +89,19 @@ public final class SoundLibrary {
         // Blobs are committed before the record that references them, so a
         // crash between the two leaves unreferenced bytes for the sweeper
         // rather than a record pointing at a file that was never written.
-        let audio = try store.adopt(fileAt: artifacts.audioURL, kind: .audio)
-        let poster = try store.adopt(fileAt: artifacts.posterURL, kind: .poster)
-        let animation = try artifacts.animationURL.map { try store.adopt(fileAt: $0, kind: .animation) }
+        // A blob-store failure is a storage failure from the user's point of
+        // view, and its error text is not something to hand onward: only an
+        // ImportFailureCode leaves this method (`DG-LOG-01`).
+        let audio: BlobRef
+        let poster: BlobRef
+        let animation: BlobRef?
+        do {
+            audio = try store.adopt(fileAt: artifacts.audioURL, kind: .audio)
+            poster = try store.adopt(fileAt: artifacts.posterURL, kind: .poster)
+            animation = try artifacts.animationURL.map { try store.adopt(fileAt: $0, kind: .animation) }
+        } catch {
+            throw ImportFailureCode.storageFull
+        }
 
         let record = StoredSound(
             title: title,
