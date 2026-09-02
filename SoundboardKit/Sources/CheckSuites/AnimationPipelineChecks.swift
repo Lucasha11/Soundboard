@@ -75,6 +75,46 @@ enum AnimationPipelineChecks {
             }
         }
 
+        // The pacing bug this suite exists to prevent a second time. Frames
+        // carry their own presentation offsets, and the renderer is required
+        // to honour them: pulling one frame per display tick looks right on a
+        // 60 Hz simulator and runs a 30 fps clip at four times speed on a
+        // 120 Hz phone, while the audio plays at normal speed.
+        await Check.suite("AnimationSession - frames carry the offsets that pace them") {
+            try await withTemporaryDirectory { root in
+                let gif = root.appendingPathComponent("source.gif")
+                try HostileCorpus.gif(width: 100, height: 100, frames: 6).write(to: gif)
+                let artifacts = try await GIFTranscoder().transcode(gifAt: gif, duration: 1.0, into: root)
+
+                let session = AnimationSession(tileID: "tile", url: artifacts.animationURL)
+                try await session.start()
+
+                var offsets: [TimeInterval] = []
+                while let frame = session.nextFrame() { offsets.append(frame.offset) }
+
+                Check.expect(offsets.count > 10, "the clip yields a stream of frames [\(offsets.count)]")
+                Check.expectClose(offsets.first ?? -1, 0, tolerance: 0.001, "the first frame is due at the start")
+                Check.expect(
+                    offsets == offsets.sorted(),
+                    "offsets increase, so a renderer can wait on them"
+                )
+                Check.expect(
+                    (offsets.last ?? 0) > 0.9,
+                    "and the last frame is due about a second in, not immediately [\(offsets.last ?? 0)]"
+                )
+
+                // The gap between frames is the encoded frame rate. A renderer
+                // that ignores these would finish the clip in one tick per
+                // frame instead of one thirtieth of a second per frame.
+                let gaps = zip(offsets.dropFirst(), offsets).map { $0 - $1 }
+                let mean = gaps.reduce(0, +) / Double(max(1, gaps.count))
+                Check.expectClose(
+                    mean, 1.0 / 30.0, tolerance: 0.005,
+                    "consecutive frames are one thirtieth of a second apart"
+                )
+            }
+        }
+
         // The decoder is held for the length of the clip and then given back.
         // Without the release, the pool leaks one decoder per fire and only
         // reclaims one when the cap forces it out - four concurrent animations

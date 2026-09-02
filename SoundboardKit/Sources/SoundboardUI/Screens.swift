@@ -7,6 +7,7 @@ struct ExploreView: View {
     @ObservedObject var model: BoardModel
     let poster: (String) -> CGImage?
     let session: (String) -> AnimationSession?
+    let audioStart: (String) -> TimeInterval?
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: DS.Metrics.exploreGridGap),
@@ -132,6 +133,7 @@ struct ExploreView: View {
                     isFiring: model.isFiring(tile.id),
                     poster: poster(tile.id),
                     session: { session(tile.id) },
+                    audioStart: { audioStart(tile.id) },
                     onFire: { model.fire(tile) }
                 )
                 // LazyVGrid only builds rows as they approach the viewport, so
@@ -399,15 +401,18 @@ public struct SoundboardRootView: View {
     /// Supplies the decoder for a firing tile. Defaults to none, so previews
     /// and checks get the poster-only path without extra wiring.
     let session: (String) -> AnimationSession?
+    let audioStart: (String) -> TimeInterval?
 
     public init(
         model: BoardModel,
         posters: PosterProvider,
-        session: @escaping (String) -> AnimationSession? = { _ in nil }
+        session: @escaping (String) -> AnimationSession? = { _ in nil },
+        audioStart: @escaping (String) -> TimeInterval? = { _ in nil }
     ) {
         self.model = model
         self.posters = posters
         self.session = session
+        self.audioStart = audioStart
     }
 
     public var body: some View {
@@ -418,7 +423,12 @@ public struct SoundboardRootView: View {
                 Group {
                     switch model.tab {
                     case .explore:
-                        ExploreView(model: model, poster: posters.image(for:), session: session)
+                        ExploreView(
+                            model: model,
+                            poster: posters.image(for:),
+                            session: session,
+                            audioStart: audioStart
+                        )
                     case .board:
                         BoardView(model: model, poster: posters.image(for:))
                     }

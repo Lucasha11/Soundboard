@@ -45,6 +45,11 @@ public final class AudioSessionObserver {
     /// with it.
     public private(set) var lastFailure: Error?
 
+    /// Called when ``apply(_:)`` fails, so the failure is collected rather than
+    /// only stored. Storing without collecting is how a control ends up
+    /// looking present and doing nothing.
+    public var onFailure: ((Error) -> Void)?
+
     public init(engine: PlaybackEngine, center: NotificationCenter = .default) {
         self.engine = engine
         self.center = center
@@ -74,6 +79,7 @@ public final class AudioSessionObserver {
             }
         } catch {
             lastFailure = error
+            onFailure?(error)
         }
     }
 

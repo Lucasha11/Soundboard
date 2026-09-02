@@ -43,6 +43,10 @@ public final class SoundboardController {
     /// something to pull frames from. Previously `fire` threw the session away
     /// the moment it got it, which is why no tile ever animated.
     private var animating: [String: AnimationSession] = [:]
+    /// When each firing tile's audio actually starts, on the host clock. The
+    /// picture is paced against this rather than against the tap, which is the
+    /// whole point of `FrameSchedule` (`BACKEND_PLAN.md` B3.4).
+    private var animationStarts: [String: TimeInterval] = [:]
 
     /// Keeps the engine alive across calls, headphone changes and audio-server
     /// restarts. Held here because it must outlive `warmUp()`: an observer
@@ -61,8 +65,15 @@ public final class SoundboardController {
         self.sessionObserver = AudioSessionObserver(engine: playback)
     }
 
-    /// The session events the engine reacts to, for anything that needs to
-    /// assert on a failed rebuild.
+    /// Called when reacting to a session event fails - a graph rebuild after a
+    /// media-services reset, say. Set by the composition, which logs it.
+    ///
+    /// Recorded *and read*: the observer cannot throw out of a system
+    /// callback, so it stores the failure, and something has to collect it or
+    /// the storing is theatre.
+    public var onSessionFailure: ((String) -> Void)?
+
+    /// The last failure the session observer recorded, if any.
     public var lastSessionFailure: Error? { sessionObserver.lastFailure }
 
     public func prepare() throws {
@@ -87,6 +98,9 @@ public final class SoundboardController {
         // Subscribing before the graph is built, not after: an interruption
         // that lands during warm-up is exactly the case a late subscription
         // misses (`BACKEND_PLAN.md` B3.3).
+        sessionObserver.onFailure = { [weak self] error in
+            self?.onSessionFailure?(String(describing: error))
+        }
         sessionObserver.start()
         let playback = self.playback
         Task.detached(priority: .userInitiated) {
@@ -136,16 +150,13 @@ public final class SoundboardController {
         }
         failures.merge(visual.prepare(page: page)) { current, _ in current }
 
-        for tile in tiles {
-            guard let audio = resolver.audioURL(for: tile.id) else { continue }
-            do {
-                try playback.preload(tile.id, from: audio)
-            } catch let code as ImportFailureCode {
-                failures[tile.id] = code
-            } catch {
-                failures[tile.id] = .decodeFailed
-            }
+        // `preloadPage` already batches this with the same error mapping;
+        // the hand-rolled loop that used to be here was a second copy of it.
+        let audio = tiles.compactMap { tile -> (id: SoundID, url: URL)? in
+            guard let url = resolver.audioURL(for: tile.id) else { return nil }
+            return (id: tile.id, url: url)
         }
+        failures.merge(playback.preloadPage(audio)) { current, _ in current }
         return failures
     }
 
@@ -180,6 +191,7 @@ public final class SoundboardController {
             // back to its poster rather than degrading every other tile.
             guard let session = fired.session else { return }
             self.animating[tile.id] = session
+            self.animationStarts[tile.id] = fired.schedule.audioStart
 
             // Held only for as long as the clip. Without this the pool leaks a
             // decoder per fire and only reclaims one when the cap forces it,
@@ -188,6 +200,7 @@ public final class SoundboardController {
             let holdFor = max(0.1, tile.duration)
             try? await Task.sleep(nanoseconds: UInt64(holdFor * 1_000_000_000))
             self.animating.removeValue(forKey: tile.id)
+            self.animationStarts.removeValue(forKey: tile.id)
             self.visual.endAnimation(tileID: tile.id)
         }
     }
@@ -196,6 +209,12 @@ public final class SoundboardController {
     /// poster.
     public func animationSession(for tileID: String) -> AnimationSession? {
         animating[tileID]
+    }
+
+    /// The host-clock instant this tile's audio starts, so the picture can be
+    /// paced against the sound rather than against the display.
+    public func animationStart(for tileID: String) -> TimeInterval? {
+        animationStarts[tileID]
     }
 
     public func stopAll() {
