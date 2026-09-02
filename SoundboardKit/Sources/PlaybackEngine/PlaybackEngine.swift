@@ -283,6 +283,11 @@ public final class PlaybackEngine: @unchecked Sendable {
         cache.evictUnpinned()
     }
 
+    /// Frees buffers outside the prefetch horizon. Audible tiles are kept.
+    public func releaseBuffers(except keep: Set<SoundID>) {
+        cache.evict(except: keep)
+    }
+
     public var activeVoiceCount: Int { pool.activeCount }
 
     // MARK: - Interruptions

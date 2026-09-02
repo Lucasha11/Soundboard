@@ -47,7 +47,13 @@ public final class BufferCache {
     private var stats = Statistics(residentCount: 0, residentBytes: 0, hits: 0, misses: 0, evictions: 0)
     private let lock = NSLock()
 
-    public init(capacity: Int = 48) {
+    /// `BACKEND_PLAN.md` Section 6: 48 clips of decoded PCM is about 37 MB,
+    /// which is the share of the 150 MB media budget audio gets. Named rather
+    /// than left as a bare default so the plan's number has one home and the
+    /// checks can assert against it instead of restating it.
+    public static let defaultCapacity = 48
+
+    public init(capacity: Int = BufferCache.defaultCapacity) {
         self.capacity = capacity
     }
 
@@ -133,6 +139,22 @@ public final class BufferCache {
         lock.lock()
         defer { lock.unlock() }
         for (id, entry) in entries where entry.pins == 0 {
+            entries.removeValue(forKey: id)
+            stats.evictions += 1
+        }
+        recountLocked()
+    }
+
+    /// Drops every buffer outside `keep`, leaving audible ones alone.
+    ///
+    /// The prefetch horizon's eviction half. A pinned buffer is currently
+    /// sounding, and freeing it mid-clip would cut the audio off - so a tile
+    /// that scrolled away while firing keeps its buffer until the voice
+    /// finishes, and is collected on the next pass.
+    public func evict(except keep: Set<SoundID>) {
+        lock.lock()
+        defer { lock.unlock() }
+        for (id, entry) in entries where entry.pins == 0 && !keep.contains(id) {
             entries.removeValue(forKey: id)
             stats.evictions += 1
         }
